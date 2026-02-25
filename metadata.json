@@ -1,0 +1,5 @@
+{
+  "name": "Istanbul Modern Kebab",
+  "description": "La mejor experiencia de kebab gourmet con pedidos online rápidos y diseño premium.",
+  "requestFramePermissions": ["geolocation"]
+}

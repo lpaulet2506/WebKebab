@@ -132,9 +132,13 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
   const categories = [
     { id: 'all', label: 'Todos' },
     { id: 'kebabs', label: 'Kebabs' },
-    { id: 'durums', label: 'Durums' },
+    { id: 'durums', label: 'Dürüm' },
     { id: 'plates', label: 'Platos' },
-    { id: 'sides', label: 'Complementos' }
+    { id: 'hamburguesas', label: 'Hamburguesas' },
+    { id: 'pizzas', label: 'Pizzas' },
+    { id: 'ensaladas', label: 'Ensaladas' },
+    { id: 'raciones', label: 'Raciones y Complementos' },
+    { id: 'drinks', label: 'Bebidas' }
   ];
 
   const handleScroll = () => {
@@ -246,7 +250,13 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
                   <h3 className="text-xl font-bold">{item.name}</h3>
                   <span className="text-brand-primary font-display font-bold">{item.price.toFixed(2)}€</span>
                 </div>
-                <p className="text-white/50 text-sm mb-6 line-clamp-2">{item.description}</p>
+                {item.ingredients ? (
+                  <p className="text-white/50 text-xs mb-6 line-clamp-3">
+                    <strong className="text-white/70">Ingredientes:</strong> {item.ingredients}
+                  </p>
+                ) : (
+                  <p className="text-white/50 text-sm mb-6 line-clamp-3">{item.description}</p>
+                )}
                 <button
                   onClick={() => onAddToCart(item)}
                   className="w-full py-3 bg-white/10 hover:bg-brand-primary text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 group/btn"

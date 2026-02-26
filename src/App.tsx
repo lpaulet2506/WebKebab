@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram } from 'lucide-react';
-import { MENU_DATA, MenuItem, PROMOTIONS } from './data/menu';
+import { MENU_DATA, MenuItem, PROMOTIONS, Promotion, CustomizationOption, CustomizationGroup } from './data/menu';
+
+export type CartItemType = {
+  id: string;
+  baseId: string;
+  item: MenuItem | Promotion;
+  quantity: number;
+  selections: Record<string, string[]>;
+};
 
 // --- Components ---
 
@@ -254,7 +262,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
   );
 };
 
-const Promotions = () => {
+const Promotions = ({ onAddToCart }: { onAddToCart: (item: Promotion) => void }) => {
   return (
     <section id="promos" className="py-24 bg-brand-primary/5 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6">
@@ -274,7 +282,10 @@ const Promotions = () => {
               <p className="text-white/60 mb-6">{promo.description}</p>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-display font-bold">{promo.price.toFixed(2)}€</span>
-                <button className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-brand-primary hover:text-white transition-all">
+                <button
+                  onClick={() => onAddToCart(promo)}
+                  className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-brand-primary hover:text-white transition-all"
+                >
                   PEDIR AHORA
                 </button>
               </div>
@@ -295,7 +306,7 @@ const Cart = ({
 }: {
   isOpen: boolean,
   onClose: () => void,
-  items: { item: MenuItem, quantity: number }[],
+  items: CartItemType[],
   onUpdateQuantity: (id: string, delta: number) => void,
   onRemove: (id: string) => void
 }) => {
@@ -335,35 +346,57 @@ const Cart = ({
                   <p>Tu cesta está vacía</p>
                 </div>
               ) : (
-                items.map(({ item, quantity }) => (
-                  <div key={item.id} className="flex gap-4">
-                    <img src={item.image} className="w-20 h-20 rounded-2xl object-cover" alt={item.name} />
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-1">
-                        <h4 className="font-bold">{item.name}</h4>
-                        <button onClick={() => onRemove(item.id)} className="text-white/30 hover:text-red-500">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                      <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => onUpdateQuantity(item.id, -1)}
-                          className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="font-mono text-sm">{quantity}</span>
-                        <button
-                          onClick={() => onUpdateQuantity(item.id, 1)}
-                          className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
-                        >
-                          <Plus size={14} />
-                        </button>
+                items.map((cartItem) => {
+                  const { id, item, quantity, selections } = cartItem;
+                  const itemName = 'title' in item ? item.title : item.name;
+                  const itemImage = 'image' in item ? item.image : 'https://images.pexels.com/photos/1059943/pexels-photo-1059943.jpeg?auto=compress&cs=tinysrgb&w=800'; // fallback for promos
+
+                  return (
+                    <div key={id} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
+                      <img src={itemImage} className="w-20 h-20 rounded-xl object-cover" alt={itemName} />
+                      <div className="flex-1">
+                        <div className="flex justify-between mb-1">
+                          <h4 className="font-bold">{itemName}</h4>
+                          <button onClick={() => onRemove(id)} className="text-white/30 hover:text-red-500">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+
+                        {/* Render Customizations */}
+                        {Object.keys(selections).length > 0 && (
+                          <div className="text-xs text-white/50 mb-2 space-y-1">
+                            {Object.entries(selections).map(([groupId, selectedOptions]) => {
+                              if (selectedOptions.length === 0) return null;
+                              const group = item.customizations?.find(g => g.id === groupId);
+                              if (!group) return null;
+                              const names = selectedOptions.map(optId => {
+                                return group.options.find(o => o.id === optId)?.name || optId;
+                              });
+                              return <div key={groupId}>• {names.join(', ')}</div>;
+                            })}
+                          </div>
+                        )}
+
+                        <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => onUpdateQuantity(id, -1)}
+                            className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="font-mono text-sm">{quantity}</span>
+                          <button
+                            onClick={() => onUpdateQuantity(id, 1)}
+                            className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
@@ -476,20 +509,123 @@ const Footer = () => {
   );
 };
 
+const ItemCustomizationModal = ({
+  item,
+  isOpen,
+  onClose,
+  onAdd
+}: {
+  item: MenuItem | Promotion | null,
+  isOpen: boolean,
+  onClose: () => void,
+  onAdd: (item: MenuItem | Promotion, selections: Record<string, string[]>) => void
+}) => {
+  const [selections, setSelections] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    if (item && item.customizations) {
+      const initial: Record<string, string[]> = {};
+      item.customizations.forEach(g => {
+        if (g.type === 'single' && g.required && g.options.length > 0) {
+          initial[g.id] = [g.options[0].id];
+        } else {
+          initial[g.id] = [];
+        }
+      });
+      setSelections(initial);
+    } else {
+      setSelections({});
+    }
+  }, [item]);
+
+  if (!isOpen || !item) return null;
+
+  const handleToggle = (groupId: string, optionId: string, type: 'single' | 'multiple') => {
+    setSelections(prev => {
+      const current = prev[groupId] || [];
+      if (type === 'single') return { ...prev, [groupId]: [optionId] };
+      const exists = current.includes(optionId);
+      return {
+        ...prev,
+        [groupId]: exists ? current.filter(id => id !== optionId) : [...current, optionId]
+      };
+    });
+  };
+
+  const itemName = 'title' in item ? item.title : item.name;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-lg flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/50 rounded-t-3xl">
+              <h3 className="text-2xl font-display font-bold">{itemName}</h3>
+              <button onClick={onClose}><X size={24} /></button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-8">
+              {item.customizations?.map(group => (
+                <div key={group.id}>
+                  <h4 className="font-bold text-lg mb-4 text-brand-primary">{group.name} <span className="text-xs text-white/50">{group.type === 'multiple' ? '(Opcional)' : '(Obligatorio)'}</span></h4>
+                  <div className="space-y-3">
+                    {group.options.map(opt => {
+                      const isSelected = (selections[group.id] || []).includes(opt.id);
+                      return (
+                        <label key={opt.id} className={`flex items-center gap-4 p-4 rounded-xl border transition-colors cursor-pointer ${isSelected ? 'border-brand-primary bg-brand-primary/10' : 'border-white/5 hover:border-brand-primary/50 bg-white/5'}`}>
+                          <input
+                            type={group.type === 'single' ? 'radio' : 'checkbox'}
+                            name={group.id}
+                            checked={isSelected}
+                            onChange={() => handleToggle(group.id, opt.id, group.type)}
+                            className="w-5 h-5 accent-brand-primary"
+                          />
+                          <span>{opt.name}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-6 border-t border-white/10 bg-black/50 rounded-b-3xl">
+              <button onClick={() => onAdd(item, selections)} className="w-full py-4 bg-brand-primary text-white font-bold rounded-2xl hover:bg-orange-600 transition-colors">
+                AÑADIR - {item.price.toFixed(2)}€
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // --- Main App ---
 
 export default function App() {
-  const [cartItems, setCartItems] = useState<{ item: MenuItem, quantity: number }[]>([]);
+  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [customizingItem, setCustomizingItem] = useState<MenuItem | Promotion | null>(null);
 
-  const addToCart = (item: MenuItem) => {
+  const startCustomizing = (item: MenuItem | Promotion) => {
+    if (item.customizations && item.customizations.length > 0) {
+      setCustomizingItem(item);
+    } else {
+      handleAddConfiguredItem(item, {});
+    }
+  };
+
+  const handleAddConfiguredItem = (item: MenuItem | Promotion, selections: Record<string, string[]>) => {
+    const selectionsKey = JSON.stringify(selections);
+    const cartId = `${item.id}-${selectionsKey}`;
+
     setCartItems(prev => {
-      const existing = prev.find(i => i.item.id === item.id);
+      const existing = prev.find(i => i.id === cartId);
       if (existing) {
-        return prev.map(i => i.item.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map(i => i.id === cartId ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...prev, { item, quantity: 1 }];
+      return [...prev, { id: cartId, baseId: item.id, item, quantity: 1, selections }];
     });
+    setCustomizingItem(null);
     setIsCartOpen(true);
   };
 
@@ -515,9 +651,9 @@ export default function App() {
 
       <main>
         <Hero />
-        <Promotions />
+        <Promotions onAddToCart={startCustomizing} />
         <KebabExperience />
-        <MenuSection onAddToCart={addToCart} />
+        <MenuSection onAddToCart={startCustomizing} />
 
         {/* Features / Social Proof Section */}
         <section className="py-24 px-6 bg-white/5">
@@ -571,6 +707,13 @@ export default function App() {
           </span>
         </motion.button>
       )}
+
+      <ItemCustomizationModal
+        item={customizingItem}
+        isOpen={!!customizingItem}
+        onClose={() => setCustomizingItem(null)}
+        onAdd={handleAddConfiguredItem}
+      />
     </div>
   );
 }

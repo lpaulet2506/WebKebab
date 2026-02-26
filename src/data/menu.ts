@@ -75,5 +75,19 @@ export const PROMOTIONS = [
     description: 'Todos los Kebabs individuales a 5€',
     price: 5.00,
     tag: 'SOLO MARTES'
+  },
+  {
+    id: 'p3',
+    title: 'Súper Menú',
+    description: '2 Kebabs + Patatas + 1 Litro Coca Cola',
+    price: 14.00,
+    tag: 'NUEVA OFERTA'
+  },
+  {
+    id: 'p4',
+    title: 'Menú Amigos',
+    description: '4 Kebabs + 2 Patatas Grandes + Bebida 2L',
+    price: 26.00,
+    tag: 'PARA COMPARTIR'
   }
 ];

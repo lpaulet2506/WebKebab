@@ -18,12 +18,12 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/80 backdrop-blur-md py-3' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-display font-bold tracking-tighter text-brand-primary">ISTANBUL</span>
+          <span className="text-2xl font-display font-bold tracking-tighter text-brand-primary">ABESH STAR KEBAB</span>
           <span className="text-xs font-mono opacity-50 hidden sm:block">MODERN KEBAB</span>
         </div>
-        
+
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={onOpenCart}
             className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
           >
@@ -58,11 +58,11 @@ const Hero = () => {
     <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
-        <video 
+        <video
           ref={videoRef}
-          autoPlay 
-          muted 
-          loop 
+          autoPlay
+          muted
+          loop
           playsInline
           className="w-full h-full object-cover opacity-80"
           src="https://assets.mixkit.co/videos/preview/mixkit-cooking-meat-on-a-grill-4302-large.mp4"
@@ -86,19 +86,22 @@ const Hero = () => {
           </span>
           <h1 className="text-6xl md:text-8xl font-display font-bold leading-[0.9] tracking-tighter mb-8">
             KEBAB <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-orange-400">REDEFINIDO</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-orange-400">ABESH STAR</span>
           </h1>
           <p className="text-lg md:text-xl text-white/60 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
             Ingredientes frescos, carne de primera calidad y recetas tradicionales con un toque moderno. Pide ahora y recíbelo en 30 minutos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-4 bg-brand-primary hover:bg-orange-600 text-white font-bold rounded-full transition-all transform hover:scale-105 flex items-center justify-center gap-2"
             >
               VER CARTA <ChevronRight size={20} />
             </button>
-            <button className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full transition-all border border-white/10">
+            <button
+              onClick={() => document.getElementById('promos')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full transition-all border border-white/10"
+            >
               NUESTRAS PROMOS
             </button>
           </div>
@@ -117,7 +120,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
-  
+
   const categories = [
     { id: 'all', label: 'Todos' },
     { id: 'kebabs', label: 'Kebabs' },
@@ -142,8 +145,8 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
     }
   };
 
-  const filteredItems = activeCategory === 'all' 
-    ? MENU_DATA 
+  const filteredItems = activeCategory === 'all'
+    ? MENU_DATA
     : MENU_DATA.filter(item => item.category === activeCategory);
 
   return (
@@ -153,7 +156,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">NUESTRA CARTA</h2>
           <p className="text-white/50 max-w-md">Seleccionamos los mejores cortes y vegetales cada mañana para garantizar la frescura en cada bocado.</p>
         </div>
-        
+
         <div className="relative w-full md:w-auto group/nav">
           <AnimatePresence>
             {showLeftArrow && (
@@ -169,7 +172,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
             )}
           </AnimatePresence>
 
-          <div 
+          <div
             ref={scrollRef}
             onScroll={handleScroll}
             className="flex gap-2 overflow-x-auto pb-2 no-scrollbar w-full md:w-auto scroll-smooth"
@@ -179,11 +182,10 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
                 key={cat.id}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`px-6 py-2 rounded-full whitespace-nowrap transition-all text-sm font-medium ${
-                  activeCategory === cat.id 
-                  ? 'bg-brand-primary text-white' 
+                className={`px-6 py-2 rounded-full whitespace-nowrap transition-all text-sm font-medium ${activeCategory === cat.id
+                  ? 'bg-brand-primary text-white'
                   : 'bg-white/5 text-white/60 hover:bg-white/10'
-                }`}
+                  }`}
               >
                 {cat.label}
               </motion.button>
@@ -218,8 +220,8 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
               className="group relative bg-white/5 rounded-3xl overflow-hidden border border-white/5 hover:border-brand-primary/30 transition-all duration-500"
             >
               <div className="aspect-[4/3] overflow-hidden">
-                <img 
-                  src={item.image} 
+                <img
+                  src={item.image}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   referrerPolicy="no-referrer"
@@ -230,14 +232,14 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
                   </div>
                 )}
               </div>
-              
+
               <div className="p-6">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold">{item.name}</h3>
                   <span className="text-brand-primary font-display font-bold">{item.price.toFixed(2)}€</span>
                 </div>
                 <p className="text-white/50 text-sm mb-6 line-clamp-2">{item.description}</p>
-                <button 
+                <button
                   onClick={() => onAddToCart(item)}
                   className="w-full py-3 bg-white/10 hover:bg-brand-primary text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 group/btn"
                 >
@@ -254,7 +256,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
 
 const Promotions = () => {
   return (
-    <section className="py-24 bg-brand-primary/5 border-y border-white/5">
+    <section id="promos" className="py-24 bg-brand-primary/5 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-display font-bold mb-4">PROMOS EXCLUSIVAS</h2>
@@ -284,15 +286,15 @@ const Promotions = () => {
   );
 };
 
-const Cart = ({ 
-  isOpen, 
-  onClose, 
-  items, 
-  onUpdateQuantity, 
-  onRemove 
-}: { 
-  isOpen: boolean, 
-  onClose: () => void, 
+const Cart = ({
+  isOpen,
+  onClose,
+  items,
+  onUpdateQuantity,
+  onRemove
+}: {
+  isOpen: boolean,
+  onClose: () => void,
   items: { item: MenuItem, quantity: number }[],
   onUpdateQuantity: (id: string, delta: number) => void,
   onRemove: (id: string) => void
@@ -305,14 +307,14 @@ const Cart = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
-          <motion.div 
+          <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -345,14 +347,14 @@ const Cart = ({
                       </div>
                       <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
                       <div className="flex items-center gap-3">
-                        <button 
+                        <button
                           onClick={() => onUpdateQuantity(item.id, -1)}
                           className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
                         >
                           <Minus size={14} />
                         </button>
                         <span className="font-mono text-sm">{quantity}</span>
-                        <button 
+                        <button
                           onClick={() => onUpdateQuantity(item.id, 1)}
                           className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
                         >
@@ -397,10 +399,10 @@ const KebabExperience = () => {
   return (
     <section className="relative h-[60vh] flex items-center justify-center overflow-hidden my-12 rounded-[3rem] mx-6">
       <div className="absolute inset-0 z-0">
-        <video 
-          autoPlay 
-          muted 
-          loop 
+        <video
+          autoPlay
+          muted
+          loop
           playsInline
           className="w-full h-full object-cover opacity-80"
           src="https://assets.mixkit.co/videos/preview/mixkit-cooking-meat-on-a-grill-4302-large.mp4"
@@ -510,13 +512,13 @@ export default function App() {
   return (
     <div className="min-h-screen selection:bg-brand-primary selection:text-white">
       <Navbar cartCount={cartCount} onOpenCart={() => setIsCartOpen(true)} />
-      
+
       <main>
         <Hero />
         <Promotions />
         <KebabExperience />
         <MenuSection onAddToCart={addToCart} />
-        
+
         {/* Features / Social Proof Section */}
         <section className="py-24 px-6 bg-white/5">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
@@ -547,9 +549,9 @@ export default function App() {
 
       <Footer />
 
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
         items={cartItems}
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}

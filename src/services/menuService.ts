@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import { MenuItem, Promotion, KEBAB_CUSTOMIZATIONS, DRINK_CUSTOMIZATIONS } from '../data/menu';
 
-const GOOGLE_SHEET_CSV_URL = 'REPLACE_WITH_YOUR_CSV_URL';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSafPDuJk9kfUls0s7Q6KcLHvxS_YkMX4s4BELDA_9LSWqnhURbHsNRvugGVLyJY8sFAyQLUscLTLIE/pub?output=csv';
 
 export const fetchMenuFromSheet = async (): Promise<{ menu: MenuItem[], promotions: Promotion[] }> => {
     try {

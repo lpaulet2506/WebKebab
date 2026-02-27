@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram } from 'lucide-react';
 import { MENU_DATA, MenuItem, PROMOTIONS, Promotion, CustomizationOption, CustomizationGroup } from './data/menu';
+import { fetchMenuFromSheet } from './services/menuService';
 
 export type CartItemType = {
   id: string;
@@ -123,7 +124,7 @@ const Hero = () => {
   );
 };
 
-const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void }) => {
+const MenuSection = ({ items, onAddToCart }: { items: MenuItem[], onAddToCart: (item: MenuItem) => void }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -158,8 +159,8 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
   };
 
   const filteredItems = activeCategory === 'all'
-    ? MENU_DATA
-    : MENU_DATA.filter(item => item.category === activeCategory);
+    ? items
+    : items.filter(item => item.category === activeCategory);
 
   return (
     <section id="menu" className="py-24 px-6 max-w-7xl mx-auto">
@@ -272,7 +273,7 @@ const MenuSection = ({ onAddToCart }: { onAddToCart: (item: MenuItem) => void })
   );
 };
 
-const Promotions = ({ onAddToCart }: { onAddToCart: (item: Promotion) => void }) => {
+const Promotions = ({ items, onAddToCart }: { items: Promotion[], onAddToCart: (item: Promotion) => void }) => {
   return (
     <section id="promos" className="py-24 bg-brand-primary/5 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6">
@@ -282,7 +283,7 @@ const Promotions = ({ onAddToCart }: { onAddToCart: (item: Promotion) => void })
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {PROMOTIONS.map(promo => (
+          {items.map(promo => (
             <div key={promo.id} className="relative overflow-hidden p-8 rounded-3xl bg-gradient-to-br from-brand-primary/20 to-transparent border border-brand-primary/20 group">
               <div className="absolute -right-12 -top-12 w-48 h-48 bg-brand-primary/10 rounded-full blur-3xl group-hover:bg-brand-primary/20 transition-all" />
               <span className="inline-block px-3 py-1 rounded-full bg-brand-primary text-white text-[10px] font-bold mb-4 tracking-wider">
@@ -612,9 +613,20 @@ const ItemCustomizationModal = ({
 // --- Main App ---
 
 export default function App() {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(MENU_DATA);
+  const [promotions, setPromotions] = useState<Promotion[]>(PROMOTIONS);
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customizingItem, setCustomizingItem] = useState<MenuItem | Promotion | null>(null);
+
+  useEffect(() => {
+    const loadMenu = async () => {
+      const { menu, promotions } = await fetchMenuFromSheet();
+      if (menu.length > 0) setMenuItems(menu);
+      if (promotions.length > 0) setPromotions(promotions);
+    };
+    loadMenu();
+  }, []);
 
   const startCustomizing = (item: MenuItem | Promotion) => {
     if (item.customizations && item.customizations.length > 0) {
@@ -661,9 +673,9 @@ export default function App() {
 
       <main>
         <Hero />
-        <Promotions onAddToCart={startCustomizing} />
+        <Promotions items={promotions} onAddToCart={startCustomizing} />
         <KebabExperience />
-        <MenuSection onAddToCart={startCustomizing} />
+        <MenuSection items={menuItems} onAddToCart={startCustomizing} />
 
         {/* Features / Social Proof Section */}
         <section className="py-24 px-6 bg-white/5">

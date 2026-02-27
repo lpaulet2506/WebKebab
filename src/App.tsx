@@ -641,7 +641,7 @@ export default function App() {
 
   const updateQuantity = (id: string, delta: number) => {
     setCartItems(prev => prev.map(i => {
-      if (i.item.id === id) {
+      if (i.id === id) {
         const newQty = Math.max(1, i.quantity + delta);
         return { ...i, quantity: newQty };
       }
@@ -650,7 +650,7 @@ export default function App() {
   };
 
   const removeFromCart = (id: string) => {
-    setCartItems(prev => prev.filter(i => i.item.id !== id));
+    setCartItems(prev => prev.filter(i => i.id !== id));
   };
 
   const cartCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram, Store, ShoppingBag, Bike, MoreHorizontal } from 'lucide-react';
+import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram, Store, ShoppingBag, Bike, ArrowLeft } from 'lucide-react';
 import { MENU_DATA, MenuItem, PROMOTIONS, Promotion, CustomizationOption, CustomizationGroup } from './data/menu';
 import { fetchMenuFromSheet } from './services/menuService';
 
@@ -14,97 +14,7 @@ export type CartItemType = {
 
 // --- Components ---
 
-const OrderTypeModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const options = [
-    { id: 'tienda', name: 'Comer en Tienda', icon: <Store size={24} />, desc: 'Disfruta de tu comida recién hecha en nuestro local' },
-    { id: 'recoger', name: 'Para Recoger', icon: <ShoppingBag size={24} />, desc: 'Pide ahora y pásate a por ello cuando esté listo' },
-    { id: 'domicilio', name: 'A Domicilio', icon: <Bike size={24} />, desc: 'Te lo llevamos a la puerta de tu casa' },
-  ];
 
-  const externalPlatforms = [
-    {
-      name: 'Glovo',
-      icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M12.012 0C7.847 0 4.459 3.388 4.459 7.553c0 1.576 0.494 3.106 1.412 4.4l0.211 0.281 3.93 5.555s0.47 0.775 1.529 0.775h0.941c1.036 0 1.53 -0.775 1.53 -0.775l3.93 -5.555 0.187 -0.28a7.43 7.43 0 0 0 1.412 -4.401C19.564 3.388 16.176 0 12.011 0Zm0 3.693a3.837 3.837 0 0 1 3.836 3.836c0 0.824 -0.26 1.578 -0.73 2.237l-0.212 0.28 -2.894 4.095 -2.895 -4.07 -0.21 -0.305a3.848 3.848 0 0 1 -0.731 -2.237 3.837 3.837 0 0 1 3.836 -3.836zm-2.117 18.26c0 1.106 0.893 2.023 2.07 2.047 1.223 0 2.117 -0.917 2.117 -2.059 0 -1.14 -0.894 -2.058 -2.094 -2.058 -1.2 0 -2.093 0.917 -2.093 2.07z" /></svg>,
-      url: 'https://glovoapp.com/es/es/mostoles-alcorcon-arroyomolinos/stores/kebab-alcorcon-pizzeria-mostoles-y-alcorcon'
-    },
-    {
-      name: 'Uber Eats',
-      icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M0 2.8645v4.9972c0 1.8834 1.3315 3.1297 3.0835 3.1297a2.9652 2.9652 0 0 0 2.1502 -0.876v0.7425H6.445V2.8645H5.223v4.9339c0 1.2642 -0.8696 2.1198 -1.9954 2.122 -1.1386 -0.0023 -1.997 -0.834 -1.997 -2.122V2.8645zm7.3625 0v7.9934h1.163v-0.7318a2.9915 2.9915 0 0 0 2.1177 0.876c1.714 0.048 3.1295 -1.3283 3.1295 -3.0429s-1.4155 -3.091 -3.1295 -3.0429a2.9674 2.9674 0 0 0 -2.107 0.876V2.8645zm9.8857 2.0561c-1.6752 -0.0074 -3.0369 1.3492 -3.0356 3.0245 0 1.7366 1.3732 3.0373 3.1537 3.0373a3.123 3.123 0 0 0 2.5578 -1.2438l-0.8495 -0.6177a2.0498 2.0498 0 0 1 -1.7083 0.8585c-0.9763 0.0126 -1.8147 -0.6915 -1.971 -1.6553h4.818v-0.379c0 -1.734 -1.254 -3.0238 -2.9638 -3.0245zm6.1632 0.0667a1.5943 1.5943 0 0 0 -1.376 0.7657v-0.7186h-1.163v5.8235h1.1741V7.5465c0 -0.9023 0.5581 -1.4847 1.3268 -1.4847h0.4949V4.9886c-0.1576 0.0013 -0.3186 -0.0009 -0.4568 -0.0013zm-6.2034 0.944a1.844 1.844 0 0 1 1.8337 1.486H15.424a1.844 1.844 0 0 1 1.784 -1.486zm-6.6589 0.0056c1.1223 -0.0084 2.0365 0.8992 2.0364 2.0215 -0.0026 1.1203 -0.914 2.0258 -2.0343 2.021a2.0151 2.0151 0 0 1 -1.4159 -0.5987A2.0152 2.0152 0 0 1 8.55 7.9592a2.0152 2.0152 0 0 1 0.5838 -1.422 2.0152 2.0152 0 0 1 1.4153 -0.6003zM0 12.9864v7.9716h5.7222v-1.3666H1.5458v-1.971h4.0647v-1.314H1.5458v-1.9556h4.1764v-1.3644zm14.5608 0.4097v1.6861h-1.1519v1.338h1.1545v3.143c0 0.7927 0.5712 1.4209 1.6005 1.4209h1.6425L17.8 19.646h-1.1412c-0.3482 0 -0.5714 -0.1509 -0.5714 -0.464v-2.7683H17.8v-1.3316h-1.7062v-1.686zm-5.2974 1.5275c-1.7348 -0.0103 -3.141 1.4035 -3.1214 3.1382 0.0196 1.7346 1.4575 3.1163 3.1915 3.0668a2.9915 2.9915 0 0 0 1.912 -0.6655v0.532h1.5175v-5.9129h-1.509v0.5257a3.0047 3.0047 0 0 0 -1.9205 -0.6835c-0.0244 -0.0007 -0.0492 -0.0006 -0.0701 -0.0008zm11.771 0.0077c-1.5855 0 -2.7002 0.6437 -2.7002 1.8854 0 0.8607 0.6132 1.4213 1.936 1.695l1.4478 0.3286c0.5694 0.1095 0.7224 0.2585 0.7224 0.4906 0 0.3701 -0.438 0.6022 -1.1279 0.6022 -0.876 0 -1.3774 -0.1907 -1.5723 -0.8477h-1.533c0.219 1.2307 1.1563 2.05 3.0484 2.05h0.0022c1.752 0 2.7422 -0.819 2.7422 -1.9534 0 -0.8059 -0.5847 -1.4084 -1.8089 -1.6668l-1.2943 -0.2605c-0.7511 -0.1358 -0.988 -0.2738 -0.988 -0.5454 0 -0.357 0.3616 -0.5757 1.0295 -0.5757 0.7227 0 1.2527 0.1925 1.406 0.8473h1.5175c-0.0854 -1.2286 -0.9899 -2.0497 -2.8273 -2.0497zM9.467 16.1815c1.0092 0.0096 1.8188 0.8369 1.8067 1.8461 0.0014 1.0046 -0.8198 1.816 -1.8243 1.8025 -1.0075 -0.0048 -1.8203 -0.8256 -1.8155 -1.833 0.0048 -1.0076 0.8255 -1.8204 1.833 -1.8156z" /></svg>,
-      url: 'https://www.ubereats.com/es/store/abesh-star-kebab-alcorcon/8MHY8oM0RmSD0nRWLxoRdg?diningMode=DELIVERY&sc=SEARCH_SUGGESTION'
-    },
-    {
-      name: 'Just Eat',
-      icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M11.196 0.232a1.376 1.376 0 0 1 1.528 0 33.157 33.157 0 0 1 3.384 2.438s0.293 0.203 0.301 -0.14a5.367 5.367 0 0 1 0.079 -1.329 0.606 0.606 0 0 1 0.562 -0.39s1.329 0.066 2.173 0.179c0.377 0.05 0.671 0.352 0.711 0.73 0 0 0.543 3.62 0.665 4.925 0 0 0.105 0.664 1.067 1.79 0 0 1.953 2.735 2.18 3.259 0 0 0.454 0.946 -0.523 1.074 0 0 -1.783 0.18 -1.955 0.22a0.446 0.446 0 0 0 -0.39 0.484s-0.094 6.296 -0.555 9.32c0 0 -0.121 1.2 -0.782 1.173 0 0 -1.833 -0.059 -2.259 -0.047 0 0 -0.183 0 -0.156 -0.246 0 0 0.934 -9.817 0.301 -14.78 0 0 -0.028 -0.64 -0.516 -0.782 0 0 -0.445 -0.18 -0.871 0.391a15.574 15.574 0 0 0 -2.9 8.86s-0.05 1.563 0.188 1.953c0 0 0.148 0.274 0.907 0.336l0.96 0.13s0.176 0 0.16 0.233c0 0 -0.218 2.88 -0.28 3.393a1.018 1.018 0 0 1 -0.071 0.34s-0.035 0.098 -0.336 0.086c0 0 -4.236 -0.03 -4.713 0 0 0 -0.2 0 -0.242 -0.105 -0.043 -0.106 -0.294 -3.717 -0.286 -4.229a0.255 0.255 0 0 1 0.149 -0.25 2.548 2.548 0 0 0 1.172 -1.871c0.052 -0.548 0.06 -1.098 0.024 -1.646 0 0 0.156 -5.522 0.195 -6.41 0 0 0.031 -0.3 -0.36 -0.355a0.364 0.364 0 0 0 -0.437 0.27v0.03c0 0.032 -0.274 3.643 -0.223 5.081 0 0 0.094 0.942 -0.558 0.961 0 0 -0.634 0.095 -0.665 -0.69 0 0 0.047 -3.542 0.203 -5.292a0.39 0.39 0 0 0 -0.348 -0.391 0.39 0.39 0 0 0 -0.437 0.316 0.065 0.065 0 0 0 0 0.031s-0.274 3.39 -0.223 5.179c0 0 0.078 0.868 -0.614 0.836 0 0 -0.578 0.066 -0.61 -0.704 0 0 0.157 -4.85 0.2 -5.224A0.39 0.39 0 0 0 6.647 9h-0.039a0.391 0.391 0 0 0 -0.418 0.325 0.167 0.167 0 0 0 0 0.035s-0.258 5.8 -0.223 7.503c0 0 -0.023 1.751 1.27 2.462 0 0 0.192 0.11 0.196 0.277 0 0 0.145 3.076 0.277 4.069 0 0 0.047 0.238 -0.164 0.238L4.291 24a0.67 0.67 0 0 1 -0.665 -0.633 72.876 72.876 0 0 1 -0.601 -9.829 0.5 0.5 0 0 0 -0.391 -0.535S0.969 12.85 0.566 12.749a0.692 0.692 0 0 1 -0.422 -1.02A33.497 33.497 0 0 1 11.197 0.232Z" /></svg>,
-      url: 'https://www.just-eat.es/restaurants-garden-kebab-alcorcon/menu'
-    },
-  ];
-
-  if (!isOpen) return null;
-
-  return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-[#0A0A0A] border border-white/10 rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-2xl"
-        >
-          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-brand-primary/10 to-transparent">
-            <div>
-              <h3 className="text-3xl font-display font-bold mb-1">CÓMO QUIERES TU PEDIDO</h3>
-              <p className="text-white/40 text-sm">Selecciona una opción para continuar</p>
-            </div>
-            <button onClick={onClose} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-full hover:bg-white/10 transition-colors">
-              <X size={24} />
-            </button>
-          </div>
-
-          <div className="p-8 space-y-4">
-            {options.map((opt) => (
-              <button
-                key={opt.id}
-                onClick={onClose}
-                className="w-full grid grid-cols-[64px_1fr] items-center text-left p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-brand-primary/50 hover:bg-white/10 transition-all group"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 text-brand-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  {opt.icon}
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold group-hover:text-brand-primary transition-colors">{opt.name}</h4>
-                  <p className="text-white/40 text-xs">{opt.desc}</p>
-                </div>
-              </button>
-            ))}
-
-            <div className="pt-8 border-t border-white/5">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-[1px] flex-1 bg-white/5"></div>
-                <span className="text-[10px] text-white/30 font-bold tracking-widest uppercase">Otras Plataformas</span>
-                <div className="h-[1px] flex-1 bg-white/5"></div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6">
-                {externalPlatforms.map((plat) => (
-                  <a
-                    key={plat.name}
-                    href={plat.url}
-                    className="flex flex-col items-center gap-3 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
-                      {plat.icon}
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 group-hover:text-white/60 transition-colors">{plat.name}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
-  );
-};
 
 const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -419,18 +329,69 @@ const Cart = ({
   onClose,
   items,
   onUpdateQuantity,
-  onRemove
+  onRemove,
+  orderConfig,
+  onUpdateOrderConfig
 }: {
   isOpen: boolean,
   onClose: () => void,
   items: CartItemType[],
   onUpdateQuantity: (id: string, delta: number) => void,
-  onRemove: (id: string) => void
+  onRemove: (id: string) => void,
+  orderConfig: { type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } },
+  onUpdateOrderConfig: (config: { type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } }) => void
 }) => {
+  const [step, setStep] = useState<'selection' | 'address' | 'cart'>(
+    !orderConfig.type ? 'selection' : (orderConfig.type === 'domicilio' && !orderConfig.address ? 'address' : 'cart')
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      if (!orderConfig.type) setStep('selection');
+      else if (orderConfig.type === 'domicilio' && !orderConfig.address) setStep('address');
+      else setStep('cart');
+    }
+  }, [isOpen, orderConfig.type, orderConfig.address]);
+
   const subtotal = items.reduce((acc, curr) => acc + (curr.item.price * curr.quantity), 0);
-  const deliveryFee = 2.50;
+  const deliveryFee = orderConfig.type === 'domicilio' ? 2.50 : 0;
   const total = subtotal > 0 ? subtotal + deliveryFee : 0;
 
+  const handleSelectType = (type: 'tienda' | 'recoger' | 'domicilio') => {
+    if (type === 'domicilio') {
+      onUpdateOrderConfig({ ...orderConfig, type });
+      setStep('address');
+    } else {
+      onUpdateOrderConfig({ ...orderConfig, type });
+      setStep('cart');
+      onClose(); // Show menu as requested
+    }
+  };
+
+  const handleAddressSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const address = {
+      street: formData.get('street') as string,
+      floor: formData.get('floor') as string,
+      number: formData.get('number') as string,
+    };
+    onUpdateOrderConfig({ ...orderConfig, address });
+    setStep('cart');
+    onClose(); // Show menu as requested
+  };
+
+  const options = [
+    { id: 'tienda', name: 'Comer en Tienda', icon: <Store size={24} />, desc: 'Disfruta en nuestro local' },
+    { id: 'recoger', name: 'Para Recoger', icon: <ShoppingBag size={24} />, desc: 'Pide y ven a por ello' },
+    { id: 'domicilio', name: 'A Domicilio', icon: <Bike size={24} />, desc: 'Te lo llevamos a casa' },
+  ];
+
+  const externalPlatforms = [
+    { name: 'Glovo', icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M12.012 0C7.847 0 4.459 3.388 4.459 7.553c0 1.576 0.494 3.106 1.412 4.4l0.211 0.281 3.93 5.555s0.47 0.775 1.529 0.775h0.941c1.036 0 1.53 -0.775 1.53 -0.775l3.93 -5.555 0.187 -0.28a7.43 7.43 0 0 0 1.412 -4.401C19.564 3.388 16.176 0 12.011 0Zm0 3.693a3.837 3.837 0 0 1 3.836 3.836c0 0.824 -0.26 1.578 -0.73 2.237l-0.212 0.28 -2.894 4.095 -2.895 -4.07 -0.21 -0.305a3.848 3.848 0 0 1 -0.731 -2.237 3.837 3.837 0 0 1 3.836 -3.836zm-2.117 18.26c0 1.106 0.893 2.023 2.07 2.047 1.223 0 2.117 -0.917 2.117 -2.059 0 -1.14 -0.894 -2.058 -2.094 -2.058 -1.2 0 -2.093 0.917 -2.093 2.07z" /></svg>, url: 'https://glovoapp.com/es/es/mostoles-alcorcon-arroyomolinos/stores/kebab-alcorcon-pizzeria-mostoles-y-alcorcon' },
+    { name: 'Uber Eats', icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M0 2.8645v4.9972c0 1.8834 1.3315 3.1297 3.0835 3.1297a2.9652 2.9652 0 0 0 2.1502 -0.876v0.7425H6.445V2.8645H5.223v4.9339c0 1.2642 -0.8696 2.1198 -1.9954 2.122 -1.1386 -0.0023 -1.997 -0.834 -1.997 -2.122V2.8645zm7.3625 0v7.9934h1.163v-0.7318a2.9915 2.9915 0 0 0 2.1177 0.876c1.714 0.048 3.1295 -1.3283 3.1295 -3.0429s-1.4155 -3.091 -3.1295 -3.0429a2.9674 2.9674 0 0 0 -2.107 0.876V2.8645zm9.8857 2.0561c-1.6752 -0.0074 -3.0369 1.3492 -3.0356 3.0245 0 1.7366 1.3732 3.0373 3.1537 3.0373a3.123 3.123 0 0 0 2.5578 -1.2438l-0.8495 -0.6177a2.0498 2.0498 0 0 1 -1.7083 0.8585c-0.9763 0.0126 -1.8147 -0.6915 -1.971 -1.6553h4.818v-0.379c0 -1.734 -1.254 -3.0238 -2.9638 -3.0245zm6.1632 0.0667a1.5943 1.5943 0 0 0 -1.376 0.7657v-0.7186h-1.163v5.8235h1.1741V7.5465c0 -0.9023 0.5581 -1.4847 1.3268 -1.4847h0.4949V4.9886c-0.1576 0.0013 -0.3186 -0.0009 -0.4568 -0.0013zm-6.2034 0.944a1.844 1.844 0 0 1 1.8337 1.486H15.424a1.844 1.844 0 0 1 1.784 -1.486zm-6.6589 0.0056c1.1223 -0.0084 2.0365 0.8992 2.0364 2.0215 -0.0026 1.1203 -0.914 2.0258 -2.0343 2.021a2.0151 2.0151 0 0 1 -1.4159 -0.5987A2.0152 2.0152 0 0 1 8.55 7.9592a2.0152 2.0152 0 0 1 0.5838 -1.422 2.0152 2.0152 0 0 1 1.4153 -0.6003zM0 12.9864v7.9716h5.7222v-1.3666H1.5458v-1.971h4.0647v-1.314H1.5458v-1.9556h4.1764v-1.3644zm14.5608 0.4097v1.6861h-1.1519v1.338h1.1545v3.143c0 0.7927 0.5712 1.4209 1.6005 1.4209h1.6425L17.8 19.646h-1.1412c-0.3482 0 -0.5714 -0.1509 -0.5714 -0.464v-2.7683H17.8v-1.3316h-1.7062v-1.686zm-5.2974 1.5275c-1.7348 -0.0103 -3.141 1.4035 -3.1214 3.1382 0.0196 1.7346 1.4575 3.1163 3.1915 3.0668a2.9915 2.9915 0 0 0 1.912 -0.6655v0.532h1.5175v-5.9129h-1.509v0.5257a3.0047 3.0047 0 0 0 -1.9205 -0.6835c-0.0244 -0.0007 -0.0492 -0.0006 -0.0701 -0.0008zm11.771 0.0077c-1.5855 0 -2.7002 0.6437 -2.7002 1.8854 0 0.8607 0.6132 1.4213 1.936 1.695l1.4478 0.3286c0.5694 0.1095 0.7224 0.2585 0.7224 0.4906 0 0.3701 -0.438 0.6022 -1.1279 0.6022 -0.876 0 -1.3774 -0.1907 -1.5723 -0.8477h-1.533c0.219 1.2307 1.1563 2.05 3.0484 2.05h0.0022c1.752 0 2.7422 -0.819 2.7422 -1.9534 0 -0.8059 -0.5847 -1.4084 -1.8089 -1.6668l-1.2943 -0.2605c-0.7511 -0.1358 -0.988 -0.2738 -0.988 -0.5454 0 -0.357 0.3616 -0.5757 1.0295 -0.5757 0.7227 0 1.2527 0.1925 1.406 0.8473h1.5175c-0.0854 -1.2286 -0.9899 -2.0497 -2.8273 -2.0497zM9.467 16.1815c1.0092 0.0096 1.8188 0.8369 1.8067 1.8461 0.0014 1.0046 -0.8198 1.816 -1.8243 1.8025 -1.0075 -0.0048 -1.8203 -0.8256 -1.8155 -1.833 0.0048 -1.0076 0.8255 -1.8204 1.833 -1.8156z" /></svg>, url: 'https://www.ubereats.com/es/store/abesh-star-kebab-alcorcon/8MHY8oM0RmSD0nRWLxoRdg?diningMode=DELIVERY&sc=SEARCH_SUGGESTION' },
+    { name: 'Just Eat', icon: <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 fill-current"><path d="M11.196 0.232a1.376 1.376 0 0 1 1.528 0 33.157 33.157 0 0 1 3.384 2.438s0.293 0.203 0.301 -0.14a5.367 5.367 0 0 1 0.079 -1.329 0.606 0.606 0 0 1 0.562 -0.39s1.329 0.066 2.173 0.179c0.377 0.05 0.671 0.352 0.711 0.73 0 0 0.543 3.62 0.665 4.925 0 0 0.105 0.664 1.067 1.79 0 0 1.953 2.735 2.18 3.259 0 0 0.454 0.946 -0.523 1.074 0 0 -1.783 0.18 -1.955 0.22a0.446 0.446 0 0 0 -0.39 0.484s-0.094 6.296 -0.555 9.32c0 0 -0.121 1.2 -0.782 1.173 0 0 -1.833 -0.059 -2.259 -0.047 0 0 -0.183 0 -0.156 -0.246 0 0 0.934 -9.817 0.301 -14.78 0 0 -0.028 -0.64 -0.516 -0.782 0 0 -0.445 -0.18 -0.871 0.391a15.574 15.574 0 0 0 -2.9 8.86s-0.05 1.563 0.188 1.953c0 0 0.148 0.274 0.907 0.336l0.96 0.13s0.176 0 0.16 0.233c0 0 -0.218 2.88 -0.28 3.393a1.018 1.018 0 0 1 -0.071 0.34s-0.035 0.098 -0.336 0.086c0 0 -4.236 -0.03 -4.713 0 0 0 -0.2 0 -0.242 -0.105 -0.043 -0.106 -0.294 -3.717 -0.286 -4.229a0.255 0.255 0 0 1 0.149 -0.25 2.548 2.548 0 0 0 1.172 -1.871c0.052 -0.548 0.06 -1.098 0.024 -1.646 0 0 0.156 -5.522 0.195 -6.41 0 0 0.031 -0.3 -0.36 -0.355a0.364 0.364 0 0 0 -0.437 0.27v0.03c0 0.032 -0.274 3.643 -0.223 5.081 0 0 0.094 0.942 -0.558 0.961 0 0 -0.634 0.095 -0.665 -0.69 0 0 0.047 -3.542 0.203 -5.292a0.39 0.39 0 0 0 -0.348 -0.391 0.39 0.39 0 0 0 -0.437 0.316 0.065 0.065 0 0 0 0 0.031s-0.274 3.39 -0.223 5.179c0 0 0.078 0.868 -0.614 0.836 0 0 -0.578 0.066 -0.61 -0.704 0 0 0.157 -4.85 0.2 -5.224A0.39 0.39 0 0 0 6.647 9h-0.039a0.391 0.391 0 0 0 -0.418 0.325 0.167 0.167 0 0 0 0 0.035s-0.258 5.8 -0.223 7.503c0 0 -0.023 1.751 1.27 2.462 0 0 0.192 0.11 0.196 0.277 0 0 0.145 3.076 0.277 4.069 0 0 0.047 0.238 -0.164 0.238L4.291 24a0.67 0.67 0 0 1 -0.665 -0.633 72.876 72.876 0 0 1 -0.601 -9.829 0.5 0.5 0 0 0 -0.391 -0.535S0.969 12.85 0.566 12.749a0.692 0.692 0 0 1 -0.422 -1.02A33.497 33.497 0 0 1 11.197 0.232Z" /></svg>, url: 'https://www.just-eat.es/restaurants-garden-kebab-alcorcon/menu' },
+  ];
   return (
     <AnimatePresence>
       {isOpen && (
@@ -449,71 +410,154 @@ const Cart = ({
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed top-0 right-0 h-full w-full max-w-md bg-[#0F0F0F] z-[70] shadow-2xl flex flex-col"
           >
-            <div className="p-6 border-bottom border-white/5 flex justify-between items-center">
-              <h2 className="text-2xl font-display font-bold">TU PEDIDO</h2>
-              <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/50">
+              <div className="flex items-center gap-3">
+                {step !== 'selection' && !['tienda', 'recoger'].includes(orderConfig.type || '') && (
+                  <button onClick={() => setStep('selection')} className="p-2 hover:bg-white/5 rounded-full text-white/50">
+                    <ArrowLeft size={20} />
+                  </button>
+                )}
+                <h2 className="text-2xl font-display font-bold uppercase tracking-tighter">
+                  {step === 'selection' ? 'Tu Pedido' : (step === 'address' ? 'Dirección' : 'Tu Cesta')}
+                </h2>
+              </div>
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                 <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {items.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-                  <ShoppingCart size={64} className="mb-4" />
-                  <p>Tu cesta está vacía</p>
-                </div>
-              ) : (
-                items.map((cartItem) => {
-                  const { id, item, quantity, selections } = cartItem;
-                  const itemName = 'title' in item ? item.title : item.name;
-                  const itemImage = 'image' in item ? item.image : 'https://images.pexels.com/photos/1059943/pexels-photo-1059943.jpeg?auto=compress&cs=tinysrgb&w=800'; // fallback for promos
-
-                  return (
-                    <div key={id} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
-                      <img src={itemImage} className="w-20 h-20 rounded-xl object-cover" alt={itemName} />
-                      <div className="flex-1">
-                        <div className="flex justify-between mb-1">
-                          <h4 className="font-bold">{itemName}</h4>
-                          <button onClick={() => onRemove(id)} className="text-white/30 hover:text-red-500">
-                            <Trash2 size={16} />
-                          </button>
+            <div className="flex-1 overflow-y-auto">
+              {step === 'selection' && (
+                <div className="p-8 space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="space-y-4">
+                    {options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleSelectType(opt.id as any)}
+                        className="w-full flex items-center gap-4 p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-brand-primary/50 hover:bg-white/10 transition-all group text-left"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 text-brand-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                          {opt.icon}
                         </div>
+                        <div>
+                          <h4 className="text-lg font-bold group-hover:text-brand-primary transition-colors">{opt.name}</h4>
+                          <p className="text-white/40 text-[10px] uppercase tracking-wider">{opt.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
 
-                        {/* Render Customizations */}
-                        {Object.keys(selections).length > 0 && (
-                          <div className="text-xs text-white/50 mb-2 space-y-1">
-                            {Object.entries(selections).map(([groupId, selectedOptions]) => {
-                              if (selectedOptions.length === 0) return null;
-                              const group = item.customizations?.find(g => g.id === groupId);
-                              if (!group) return null;
-                              const names = selectedOptions.map(optId => {
-                                return group.options.find(o => o.id === optId)?.name || optId;
-                              });
-                              return <div key={groupId}>• {names.join(', ')}</div>;
-                            })}
+                  <div className="pt-8 border-t border-white/5">
+                    <div className="text-center mb-6">
+                      <span className="text-[10px] text-white/30 font-black tracking-[0.2em] uppercase">Otras Plataformas</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      {externalPlatforms.map((plat) => (
+                        <a key={plat.name} href={plat.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
+                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:bg-brand-primary group-hover:text-white transition-all">
+                            {plat.icon}
                           </div>
-                        )}
+                          <span className="text-[8px] font-bold text-white/20 uppercase group-hover:text-white/40">{plat.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                        <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => onUpdateQuantity(id, -1)}
-                            className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="font-mono text-sm">{quantity}</span>
-                          <button
-                            onClick={() => onUpdateQuantity(id, 1)}
-                            className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
+              {step === 'address' && (
+                <form onSubmit={handleAddressSubmit} className="p-8 space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Calle / Dirección</label>
+                      <input name="street" required placeholder="Ej: Calle Mayor" className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:outline-none focus:border-brand-primary transition-all" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Número</label>
+                        <input name="number" required placeholder="Ej: 12" className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:outline-none focus:border-brand-primary transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Piso / Puerta</label>
+                        <input name="floor" placeholder="Ej: 3º B" className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:outline-none focus:border-brand-primary transition-all" />
                       </div>
                     </div>
-                  );
-                })
+                  </div>
+                  <button type="submit" className="w-full py-5 bg-brand-primary hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-primary/20">
+                    CONFIRMAR Y VER CARTA
+                  </button>
+                </form>
+              )}
+
+              {step === 'cart' && (
+                <div className="p-6 space-y-6 animate-in fade-in duration-300">
+                  {orderConfig.type && (
+                    <div className="flex items-center justify-between p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="text-brand-primary">
+                          {orderConfig.type === 'domicilio' ? <Bike size={18} /> : (orderConfig.type === 'recoger' ? <ShoppingBag size={18} /> : <Store size={18} />)}
+                        </div>
+                        <div className="text-xs">
+                          <span className="font-bold text-white/80 block uppercase tracking-wider">{orderConfig.type === 'domicilio' ? 'A Domicilio' : (orderConfig.type === 'recoger' ? 'Para Recoger' : 'Comer en Tienda')}</span>
+                          {orderConfig.type === 'domicilio' && orderConfig.address && (
+                            <span className="text-white/40 truncate block max-w-[180px]">{orderConfig.address.street} {orderConfig.address.number}</span>
+                          )}
+                        </div>
+                      </div>
+                      <button onClick={() => setStep('selection')} className="text-[10px] font-black text-brand-primary uppercase hover:underline">Cambiar</button>
+                    </div>
+                  )}
+
+                  {items.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center opacity-30 py-12">
+                      <ShoppingCart size={64} className="mb-4" />
+                      <p>Tu cesta está vacía</p>
+                    </div>
+                  ) : (
+                    items.map((cartItem) => {
+                      const { id, item, quantity, selections } = cartItem;
+                      const itemName = 'title' in item ? item.title : item.name;
+                      const itemImage = 'image' in item ? item.image : 'https://images.pexels.com/photos/1059943/pexels-photo-1059943.jpeg?auto=compress&cs=tinysrgb&w=800';
+
+                      return (
+                        <div key={id} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
+                          <img src={itemImage} className="w-20 h-20 rounded-xl object-cover" alt={itemName} />
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-1">
+                              <h4 className="font-bold">{itemName}</h4>
+                              <button onClick={() => onRemove(id)} className="text-white/30 hover:text-red-500">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+
+                            {Object.keys(selections).length > 0 && (
+                              <div className="text-xs text-white/50 mb-2 space-y-1">
+                                {Object.entries(selections).map(([groupId, selectedOptions]) => {
+                                  if (selectedOptions.length === 0) return null;
+                                  const group = item.customizations?.find(g => g.id === groupId);
+                                  if (!group) return null;
+                                  const names = selectedOptions.map(optId => group.options.find(o => o.id === optId)?.name || optId);
+                                  return <div key={groupId}>• {names.join(', ')}</div>;
+                                })}
+                              </div>
+                            )}
+
+                            <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
+                            <div className="flex items-center gap-3">
+                              <button onClick={() => onUpdateQuantity(id, -1)} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5">
+                                <Minus size={14} />
+                              </button>
+                              <span className="font-mono text-sm">{quantity}</span>
+                              <button onClick={() => onUpdateQuantity(id, 1)} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5">
+                                <Plus size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               )}
             </div>
 
@@ -723,7 +767,7 @@ export default function App() {
   const [promotions, setPromotions] = useState<Promotion[]>(PROMOTIONS);
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [orderConfig, setOrderConfig] = useState<{ type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } }>({ type: null });
   const [customizingItem, setCustomizingItem] = useState<MenuItem | Promotion | null>(null);
 
   useEffect(() => {
@@ -779,7 +823,7 @@ export default function App() {
       <Navbar cartCount={cartCount} onOpenCart={() => setIsCartOpen(true)} />
 
       <main>
-        <Hero onStartOrder={() => setIsOrderModalOpen(true)} />
+        <Hero onStartOrder={() => setIsCartOpen(true)} />
         <Promotions items={promotions} onAddToCart={startCustomizing} />
         <KebabExperience />
         <MenuSection items={menuItems} onAddToCart={startCustomizing} />
@@ -820,6 +864,8 @@ export default function App() {
         items={cartItems}
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}
+        orderConfig={orderConfig}
+        onUpdateOrderConfig={setOrderConfig}
       />
 
       {/* Mobile Floating Action Button for Cart */}
@@ -842,11 +888,6 @@ export default function App() {
         isOpen={!!customizingItem}
         onClose={() => setCustomizingItem(null)}
         onAdd={handleAddConfiguredItem}
-      />
-
-      <OrderTypeModal
-        isOpen={isOrderModalOpen}
-        onClose={() => setIsOrderModalOpen(false)}
       />
     </div>
   );

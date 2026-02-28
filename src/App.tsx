@@ -216,7 +216,7 @@ const MenuSection = ({ items, onAddToCart }: { items: MenuItem[], onAddToCart: (
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
           {filteredItems.map((item) => (
             <motion.div
@@ -225,9 +225,9 @@ const MenuSection = ({ items, onAddToCart }: { items: MenuItem[], onAddToCart: (
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="group relative bg-white/5 rounded-3xl overflow-hidden border border-white/5 hover:border-brand-primary/30 transition-all duration-500"
+              className="group relative bg-white/5 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 hover:border-brand-primary/30 transition-all duration-500 flex flex-row md:flex-col"
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              <div className="w-[120px] h-[120px] md:w-full md:h-auto md:aspect-[4/3] flex-shrink-0 overflow-hidden relative">
                 <img
                   src={item.image}
                   alt={item.name}
@@ -235,29 +235,29 @@ const MenuSection = ({ items, onAddToCart }: { items: MenuItem[], onAddToCart: (
                   referrerPolicy="no-referrer"
                 />
                 {item.popular && (
-                  <div className="absolute top-4 left-4 bg-brand-accent text-black text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1">
-                    <Star size={12} fill="currentColor" /> POPULAR
+                  <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-brand-accent text-black text-[8px] md:text-[10px] font-black px-2 md:px-3 py-0.5 md:py-1 rounded-full flex items-center gap-1">
+                    <Star size={10} fill="currentColor" className="md:w-3 md:h-3" /> POPULAR
                   </div>
                 )}
               </div>
 
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold">{item.name}</h3>
-                  <span className="text-brand-primary font-display font-bold">{item.price.toFixed(2)}€</span>
-                </div>
-                {item.ingredients ? (
-                  <p className="text-white/50 text-xs mb-6 line-clamp-3">
-                    <strong className="text-white/70">Ingredientes:</strong> {item.ingredients}
+              <div className="p-4 md:p-6 flex flex-col justify-between flex-1 min-w-0">
+                <div>
+                  <div className="flex justify-between items-start mb-1 md:mb-2">
+                    <h3 className="text-sm md:text-xl font-bold line-clamp-2 md:line-clamp-none uppercase md:normal-case flex-1 pr-2">{item.name}</h3>
+                    <span className="hidden md:inline text-brand-primary font-display font-bold text-lg">{item.price.toFixed(2)}€</span>
+                  </div>
+                  <p className="text-white/40 text-[10px] md:text-sm mb-4 line-clamp-2 md:line-clamp-3">
+                    {item.ingredients || item.description}
                   </p>
-                ) : (
-                  <p className="text-white/50 text-sm mb-6 line-clamp-3">{item.description}</p>
-                )}
+                </div>
                 <button
                   onClick={() => onAddToCart(item)}
-                  className="w-full py-3 bg-white/10 hover:bg-brand-primary text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 group/btn"
+                  className="w-full py-2 md:py-3 bg-white/10 hover:bg-brand-primary text-white text-[10px] md:text-sm font-bold rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 group/btn"
                 >
-                  AÑADIR AL PEDIDO <Plus size={18} className="group-hover/btn:rotate-90 transition-transform" />
+                  <span className="md:hidden uppercase">AÑADIR POR {item.price.toFixed(2)}€</span>
+                  <span className="hidden md:inline">AÑADIR AL PEDIDO</span>
+                  <Plus size={14} className="md:w-[18px] md:h-[18px] group-hover/btn:rotate-90 transition-transform" />
                 </button>
               </div>
             </motion.div>

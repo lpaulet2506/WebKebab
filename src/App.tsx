@@ -74,7 +74,7 @@ const Hero = () => {
           loop
           playsInline
           className="w-full h-full object-cover opacity-80"
-          src="https://drive.google.com/uc?export=download&id=1c6TdKndUILT7aPoLh60ksNnIMCsWlrfF"
+          src="/bg-hero.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0A0A0A]" />
       </div>

@@ -557,6 +557,7 @@ export interface Promotion {
   description: string;
   price: number;
   tag: string;
+  image?: string;
   customizations?: CustomizationGroup[];
 }
 
@@ -567,6 +568,7 @@ export const PROMOTIONS: Promotion[] = [
     description: '2 Durums + 1 Patatas Grandes + 2 Bebidas',
     price: 18.90,
     tag: 'MÁS VENDIDO',
+    image: 'https://images.pexels.com/photos/1603901/pexels-photo-1603901.jpeg?auto=compress&cs=tinysrgb&w=800',
     customizations: [
       {
         id: 'drinks_2',
@@ -586,6 +588,7 @@ export const PROMOTIONS: Promotion[] = [
     description: 'Todos los Kebabs individuales a 5€',
     price: 5.00,
     tag: 'SOLO MARTES',
+    image: 'https://images.pexels.com/photos/2233729/pexels-photo-2233729.jpeg?auto=compress&cs=tinysrgb&w=800',
     customizations: KEBAB_CUSTOMIZATIONS
   },
   {
@@ -594,6 +597,7 @@ export const PROMOTIONS: Promotion[] = [
     description: '2 Kebabs + Patatas + 1 Litro Coca Cola',
     price: 14.00,
     tag: 'NUEVA OFERTA',
+    image: 'https://images.pexels.com/photos/2092906/pexels-photo-2092906.jpeg?auto=compress&cs=tinysrgb&w=800',
     customizations: [
       {
         id: 'drink_1l',
@@ -613,6 +617,7 @@ export const PROMOTIONS: Promotion[] = [
     description: '4 Kebabs + 2 Patatas Grandes + Bebida 2L',
     price: 26.00,
     tag: 'PARA COMPARTIR',
+    image: 'https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg?auto=compress&cs=tinysrgb&w=800',
     customizations: [
       {
         id: 'drink_2l',

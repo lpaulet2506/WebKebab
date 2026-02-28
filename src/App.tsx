@@ -279,20 +279,33 @@ const Promotions = ({ items, onAddToCart }: { items: Promotion[], onAddToCart: (
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {items.map(promo => (
-            <div key={promo.id} className="relative overflow-hidden p-8 rounded-3xl bg-gradient-to-br from-brand-primary/20 to-transparent border border-brand-primary/20 group">
-              <div className="absolute -right-12 -top-12 w-48 h-48 bg-brand-primary/10 rounded-full blur-3xl group-hover:bg-brand-primary/20 transition-all" />
-              <span className="inline-block px-3 py-1 rounded-full bg-brand-primary text-white text-[10px] font-bold mb-4 tracking-wider">
-                {promo.tag}
-              </span>
-              <h3 className="text-3xl font-display font-bold mb-2">{promo.title}</h3>
-              <p className="text-white/60 mb-6">{promo.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-display font-bold">{promo.price.toFixed(2)}€</span>
+            <div key={promo.id} className="bg-[#111] rounded-[2rem] overflow-hidden border border-white/5 flex flex-col group transition-all hover:border-brand-primary/20">
+              {/* Image Header */}
+              <div className="relative aspect-[16/9] overflow-hidden">
+                <img
+                  src={promo.image || 'https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                  alt={promo.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 rounded-full bg-brand-primary text-white text-[10px] font-black tracking-widest uppercase shadow-xl">
+                    {promo.tag}
+                  </span>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-8 flex flex-col flex-1">
+                <h3 className="text-2xl font-display font-black mb-4 uppercase tracking-tight">{promo.title}</h3>
+                <p className="text-white/50 text-sm mb-10 leading-relaxed font-light flex-1">
+                  {promo.description}
+                </p>
+
                 <button
                   onClick={() => onAddToCart(promo)}
-                  className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-brand-primary hover:text-white transition-all"
+                  className="w-full py-5 bg-brand-primary/10 hover:bg-brand-primary text-brand-primary hover:text-white font-black text-sm rounded-3xl transition-all duration-300 flex items-center justify-center gap-2 border border-brand-primary/20 hover:border-brand-primary"
                 >
-                  PEDIR AHORA
+                  DESDE {promo.price.toFixed(2)}€
                 </button>
               </div>
             </div>

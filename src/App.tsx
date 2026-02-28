@@ -74,14 +74,9 @@ const Hero = () => {
           loop
           playsInline
           className="w-full h-full object-cover opacity-80"
-          src="https://assets.mixkit.co/videos/preview/mixkit-cooking-meat-on-a-grill-4302-large.mp4"
+          src="https://drive.google.com/uc?export=download&id=1c6TdKndUILT7aPoLh60ksNnIMCsWlrfF"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0A0A0A]" />
-      </div>
-
-      {/* Pexels Attribution Overlay */}
-      <div className="absolute bottom-4 right-6 z-20 text-[10px] text-white/30 font-mono uppercase tracking-widest pointer-events-none">
-        Video de <span className="text-white/50">RDNE Stock project</span> en Pexels
       </div>
 
       <div className="relative z-10 text-center px-6 max-w-4xl">

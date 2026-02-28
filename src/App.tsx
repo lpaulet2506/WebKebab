@@ -568,7 +568,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center gap-2 mb-6">
-            <span className="text-3xl font-display font-bold tracking-tighter text-brand-primary">ISTANBUL</span>
+            <span className="text-3xl font-display font-bold tracking-tighter text-brand-primary">ABESH STAR KEBAB</span>
           </div>
           <p className="text-white/40 max-w-sm mb-8">
             Llevamos el auténtico sabor de Turquía a tu mesa con un toque de modernidad y frescura inigualable.

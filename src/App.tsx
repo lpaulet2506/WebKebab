@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram } from 'lucide-react';
+import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram, Store, ShoppingBag, Bike, MoreHorizontal } from 'lucide-react';
 import { MENU_DATA, MenuItem, PROMOTIONS, Promotion, CustomizationOption, CustomizationGroup } from './data/menu';
 import { fetchMenuFromSheet } from './services/menuService';
 
@@ -13,6 +13,86 @@ export type CartItemType = {
 };
 
 // --- Components ---
+
+const OrderTypeModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const options = [
+    { id: 'tienda', name: 'Comer en Tienda', icon: <Store size={24} />, desc: 'Disfruta de tu comida recién hecha en nuestro local' },
+    { id: 'recoger', name: 'Para Recoger', icon: <ShoppingBag size={24} />, desc: 'Pide ahora y pásate a por ello cuando esté listo' },
+    { id: 'domicilio', name: 'A Domicilio', icon: <Bike size={24} />, desc: 'Te lo llevamos a la puerta de tu casa' },
+  ];
+
+  const externalPlatforms = [
+    { name: 'Glovo', icon: <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" /></svg>, url: '#' },
+    { name: 'Uber Eats', icon: <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" /></svg>, url: '#' },
+    { name: 'Just Eat', icon: <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16L9 13.59l1.41-1.41L12 13.76l5.59-5.59L19 9.59 13.41 18z" /></svg>, url: '#' },
+  ];
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="bg-[#0A0A0A] border border-white/10 rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-2xl"
+        >
+          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-brand-primary/10 to-transparent">
+            <div>
+              <h3 className="text-3xl font-display font-bold mb-1">CÓMO QUIERES TU PEDIDO</h3>
+              <p className="text-white/40 text-sm">Selecciona una opción para continuar</p>
+            </div>
+            <button onClick={onClose} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-full hover:bg-white/10 transition-colors">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="p-8 space-y-4">
+            {options.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={onClose}
+                className="w-full grid grid-cols-[64px_1fr] items-center text-left p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-brand-primary/50 hover:bg-white/10 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 text-brand-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                  {opt.icon}
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold group-hover:text-brand-primary transition-colors">{opt.name}</h4>
+                  <p className="text-white/40 text-xs">{opt.desc}</p>
+                </div>
+              </button>
+            ))}
+
+            <div className="pt-8 border-t border-white/5">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-[1px] flex-1 bg-white/5"></div>
+                <span className="text-[10px] text-white/30 font-bold tracking-widest uppercase">Otras Plataformas</span>
+                <div className="h-[1px] flex-1 bg-white/5"></div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6">
+                {externalPlatforms.map((plat) => (
+                  <a
+                    key={plat.name}
+                    href={plat.url}
+                    className="flex flex-col items-center gap-3 group"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
+                      {plat.icon}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 group-hover:text-white/60 transition-colors">{plat.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+};
 
 const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -52,7 +132,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
   );
 };
 
-const Hero = () => {
+const Hero = ({ onStartOrder }: { onStartOrder: () => void }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -97,14 +177,20 @@ const Hero = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
+              onClick={onStartOrder}
+              className="px-8 py-4 bg-brand-primary hover:bg-orange-600 text-white font-black rounded-full transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/20"
+            >
+              COMENZAR PEDIDO <ShoppingBag size={20} />
+            </button>
+            <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-brand-primary hover:bg-orange-600 text-white font-bold rounded-full transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full transition-all border border-white/10 flex items-center justify-center gap-2"
             >
               VER CARTA <ChevronRight size={20} />
             </button>
             <button
               onClick={() => document.getElementById('promos')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full transition-all border border-white/10"
+              className="px-8 py-4 bg-white/10 hover:bg-white/5 backdrop-blur-md text-white/60 font-medium rounded-full transition-all border border-white/5 hidden md:flex"
             >
               NUESTRAS PROMOS
             </button>
@@ -625,6 +711,7 @@ export default function App() {
   const [promotions, setPromotions] = useState<Promotion[]>(PROMOTIONS);
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [customizingItem, setCustomizingItem] = useState<MenuItem | Promotion | null>(null);
 
   useEffect(() => {
@@ -680,7 +767,7 @@ export default function App() {
       <Navbar cartCount={cartCount} onOpenCart={() => setIsCartOpen(true)} />
 
       <main>
-        <Hero />
+        <Hero onStartOrder={() => setIsOrderModalOpen(true)} />
         <Promotions items={promotions} onAddToCart={startCustomizing} />
         <KebabExperience />
         <MenuSection items={menuItems} onAddToCart={startCustomizing} />
@@ -743,6 +830,11 @@ export default function App() {
         isOpen={!!customizingItem}
         onClose={() => setCustomizingItem(null)}
         onAdd={handleAddConfiguredItem}
+      />
+
+      <OrderTypeModal
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
       />
     </div>
   );

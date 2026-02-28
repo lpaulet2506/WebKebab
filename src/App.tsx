@@ -331,7 +331,10 @@ const Cart = ({
   onUpdateQuantity,
   onRemove,
   orderConfig,
-  onUpdateOrderConfig
+  onUpdateOrderConfig,
+  menuItems,
+  promotions,
+  onAddItem
 }: {
   isOpen: boolean,
   onClose: () => void,
@@ -339,11 +342,16 @@ const Cart = ({
   onUpdateQuantity: (id: string, delta: number) => void,
   onRemove: (id: string) => void,
   orderConfig: { type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } },
-  onUpdateOrderConfig: (config: { type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } }) => void
+  onUpdateOrderConfig: (config: { type: 'tienda' | 'recoger' | 'domicilio' | null, address?: { street: string, floor: string, number: string } }) => void,
+  menuItems: MenuItem[],
+  promotions: Promotion[],
+  onAddItem: (item: MenuItem | Promotion) => void
 }) => {
   const [step, setStep] = useState<'selection' | 'address' | 'cart'>(
     !orderConfig.type ? 'selection' : (orderConfig.type === 'domicilio' && !orderConfig.address ? 'address' : 'cart')
   );
+
+  const [activeCategory, setActiveCategory] = useState<string>('all');
 
   useEffect(() => {
     if (isOpen) {
@@ -364,7 +372,7 @@ const Cart = ({
     } else {
       onUpdateOrderConfig({ ...orderConfig, type });
       setStep('cart');
-      onClose(); // Show menu as requested
+      // No longer automatically close, per user request. Show menu instead.
     }
   };
 
@@ -378,7 +386,7 @@ const Cart = ({
     };
     onUpdateOrderConfig({ ...orderConfig, address });
     setStep('cart');
-    onClose(); // Show menu as requested
+    // No longer automatically close, per user request. Show menu instead.
   };
 
   const options = [
@@ -490,94 +498,155 @@ const Cart = ({
               )}
 
               {step === 'cart' && (
-                <div className="p-6 space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-300 flex flex-col h-full bg-[#0F0F0F]">
+                  {/* Top Order Type Summary */}
                   {orderConfig.type && (
-                    <div className="flex items-center justify-between p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl mb-4">
+                    <div className="sticky top-0 z-10 px-6 py-4 bg-black/60 backdrop-blur-md border-b border-white/5 flex items-center justify-between shrink-0">
                       <div className="flex items-center gap-3">
                         <div className="text-brand-primary">
                           {orderConfig.type === 'domicilio' ? <Bike size={18} /> : (orderConfig.type === 'recoger' ? <ShoppingBag size={18} /> : <Store size={18} />)}
                         </div>
-                        <div className="text-xs">
-                          <span className="font-bold text-white/80 block uppercase tracking-wider">{orderConfig.type === 'domicilio' ? 'A Domicilio' : (orderConfig.type === 'recoger' ? 'Para Recoger' : 'Comer en Tienda')}</span>
+                        <div className="text-[10px]">
+                          <span className="font-bold text-white/80 block uppercase tracking-[0.1em]">{orderConfig.type === 'domicilio' ? 'A Domicilio' : (orderConfig.type === 'recoger' ? 'Para Recoger' : 'Comer en Tienda')}</span>
                           {orderConfig.type === 'domicilio' && orderConfig.address && (
-                            <span className="text-white/40 truncate block max-w-[180px]">{orderConfig.address.street} {orderConfig.address.number}</span>
+                            <span className="text-white/40 truncate block max-w-[150px] uppercase font-mono">{orderConfig.address.street} {orderConfig.address.number}</span>
                           )}
                         </div>
                       </div>
-                      <button onClick={() => setStep('selection')} className="text-[10px] font-black text-brand-primary uppercase hover:underline">Cambiar</button>
+                      <button onClick={() => setStep('selection')} className="text-[9px] font-black text-brand-primary hover:text-white uppercase px-3 py-1 bg-brand-primary/10 rounded-full transition-colors">Cambiar</button>
                     </div>
                   )}
 
-                  {items.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center opacity-30 py-12">
-                      <ShoppingCart size={64} className="mb-4" />
-                      <p>Tu cesta está vacía</p>
-                    </div>
-                  ) : (
-                    items.map((cartItem) => {
-                      const { id, item, quantity, selections } = cartItem;
-                      const itemName = 'title' in item ? item.title : item.name;
-                      const itemImage = 'image' in item ? item.image : 'https://images.pexels.com/photos/1059943/pexels-photo-1059943.jpeg?auto=compress&cs=tinysrgb&w=800';
-
-                      return (
-                        <div key={id} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
-                          <img src={itemImage} className="w-20 h-20 rounded-xl object-cover" alt={itemName} />
-                          <div className="flex-1">
-                            <div className="flex justify-between mb-1">
-                              <h4 className="font-bold">{itemName}</h4>
-                              <button onClick={() => onRemove(id)} className="text-white/30 hover:text-red-500">
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-
-                            {Object.keys(selections).length > 0 && (
-                              <div className="text-xs text-white/50 mb-2 space-y-1">
-                                {Object.entries(selections).map(([groupId, selectedOptions]) => {
-                                  if (selectedOptions.length === 0) return null;
-                                  const group = item.customizations?.find(g => g.id === groupId);
-                                  if (!group) return null;
-                                  const names = selectedOptions.map(optId => group.options.find(o => o.id === optId)?.name || optId);
-                                  return <div key={groupId}>• {names.join(', ')}</div>;
-                                })}
-                              </div>
-                            )}
-
-                            <p className="text-brand-primary text-sm font-bold mb-3">{item.price.toFixed(2)}€</p>
-                            <div className="flex items-center gap-3">
-                              <button onClick={() => onUpdateQuantity(id, -1)} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5">
-                                <Minus size={14} />
-                              </button>
-                              <span className="font-mono text-sm">{quantity}</span>
-                              <button onClick={() => onUpdateQuantity(id, 1)} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5">
-                                <Plus size={14} />
-                              </button>
-                            </div>
-                          </div>
+                  {/* Cart Content Scrollable */}
+                  <div className="flex-1 overflow-y-auto px-6 space-y-8 py-6 custom-scrollbar scroll-smooth">
+                    {/* Items Section */}
+                    {items.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <ShoppingCart size={14} className="text-brand-primary" />
+                          <h3 className="text-xs font-black uppercase tracking-widest text-white/50">Tu Cesta ({items.length})</h3>
                         </div>
-                      );
-                    })
-                  )}
+                        <div className="space-y-3">
+                          {items.map((cartItem) => {
+                            const { id, item, quantity, selections } = cartItem;
+                            const itemName = 'title' in item ? item.title : item.name;
+                            const itemImage = 'image' in item ? item.image : 'https://images.pexels.com/photos/1059943/pexels-photo-1059943.jpeg?auto=compress&cs=tinysrgb&w=800';
+
+                            return (
+                              <motion.div layout key={id} className="flex gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <img src={itemImage} className="w-14 h-14 rounded-xl object-cover shrink-0" alt={itemName} />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start mb-1">
+                                    <h4 className="font-bold text-xs truncate pr-4 uppercase">{itemName}</h4>
+                                    <button onClick={() => onRemove(id)} className="text-white/20 hover:text-red-500 shrink-0 transition-colors">
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+
+                                  {Object.keys(selections).length > 0 && (
+                                    <div className="text-[9px] text-white/30 mb-2 space-y-0.5 font-medium italic">
+                                      {Object.entries(selections).map(([groupId, selectedOptions]) => {
+                                        if (selectedOptions.length === 0) return null;
+                                        const group = item.customizations?.find(g => g.id === groupId);
+                                        if (!group) return null;
+                                        const names = selectedOptions.map(optId => group.options.find(o => o.id === optId)?.name || optId);
+                                        return <div key={groupId}>• {names.join(', ')}</div>;
+                                      })}
+                                    </div>
+                                  )}
+
+                                  <div className="flex justify-between items-center mt-2">
+                                    <span className="text-brand-primary text-xs font-bold font-mono">{(item.price * quantity).toFixed(2)}€</span>
+                                    <div className="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-white/5">
+                                      <button onClick={() => onUpdateQuantity(id, -1)} className="w-6 h-6 rounded-md hover:bg-white/10 flex items-center justify-center transition-colors text-white/40">
+                                        <Minus size={12} />
+                                      </button>
+                                      <span className="text-[10px] font-mono font-bold w-4 text-center">{quantity}</span>
+                                      <button onClick={() => onUpdateQuantity(id, 1)} className="w-6 h-6 rounded-md hover:bg-white/10 flex items-center justify-center transition-colors text-brand-primary">
+                                        <Plus size={12} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-8 text-center opacity-20">
+                        <ShoppingCart size={48} className="mx-auto mb-4" />
+                        <p className="text-xs font-black uppercase tracking-widest">Cesta Vacía</p>
+                      </div>
+                    )}
+
+                    {/* Menu Selection Section */}
+                    <div className="space-y-6 pt-4 border-t border-white/5">
+                      <div className="flex flex-col gap-4 mb-4">
+                        <div className="flex items-center gap-3">
+                          <MenuIcon size={14} className="text-brand-primary" />
+                          <h3 className="text-xs font-black uppercase tracking-widest text-white/50">Añadir a tu pedido</h3>
+                        </div>
+                        <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth py-1">
+                          {['all', 'kebabs', 'burgers', 'combos', 'bebidas'].map(cat => (
+                            <button
+                              key={cat}
+                              onClick={() => setActiveCategory(cat)}
+                              className={`text-[8px] font-black uppercase tracking-widest px-4 py-2 rounded-full transition-all shrink-0 ${activeCategory === cat ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
+                            >
+                              {cat === 'all' ? 'Todos' : cat}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3">
+                        {(activeCategory === 'all' ? menuItems : menuItems.filter(i => i.category === activeCategory)).map(item => (
+                          <motion.div
+                            layout
+                            key={item.id}
+                            className="bg-white/5 border border-white/5 rounded-3xl p-3 flex gap-4 hover:border-brand-primary/30 transition-all cursor-pointer group/item"
+                            onClick={() => onAddItem(item)}
+                          >
+                            <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-white/5">
+                              <img src={item.image} className="w-full h-full object-cover grayscale-[0.2] group-hover/item:grayscale-0 transition-all duration-500" alt={item.name} />
+                            </div>
+                            <div className="flex-1 flex flex-col justify-center min-w-0">
+                              <h4 className="font-bold text-[10px] group-hover:text-brand-primary transition-colors truncate uppercase tracking-tight">{item.name}</h4>
+                              <p className="text-[9px] text-white/30 line-clamp-1 leading-tight mb-2 font-light">{item.ingredients || item.description}</p>
+                              <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-mono font-bold text-brand-primary">{item.price.toFixed(2)}€</span>
+                                <div className="w-6 h-6 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary group-hover/item:bg-brand-primary group-hover/item:text-white transition-all shadow-lg shadow-brand-primary/10">
+                                  <Plus size={12} />
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
             {items.length > 0 && (
-              <div className="p-6 bg-white/5 border-t border-white/10 space-y-4">
-                <div className="space-y-2 text-sm text-white/60">
+              <div className="p-8 bg-black/60 backdrop-blur-xl border-t border-white/10 space-y-6 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] shrink-0">
+                <div className="space-y-2 text-sm text-white/40 font-mono uppercase tracking-widest">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>{subtotal.toFixed(2)}€</span>
+                    <span className="text-white">{subtotal.toFixed(2)}€</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Envío</span>
-                    <span>{deliveryFee.toFixed(2)}€</span>
+                    <span className="text-white">{deliveryFee.toFixed(2)}€</span>
                   </div>
                 </div>
-                <div className="flex justify-between text-xl font-display font-bold pt-2">
-                  <span>TOTAL</span>
-                  <span className="text-brand-primary">{total.toFixed(2)}€</span>
+                <div className="flex justify-between items-end">
+                  <span className="text-xs font-black uppercase text-white/30 tracking-[0.2em]">Total Pedido</span>
+                  <span className="text-3xl font-display font-bold text-brand-primary tracking-tighter leading-none">{total.toFixed(2)}€</span>
                 </div>
-                <button className="w-full py-4 bg-brand-primary hover:bg-orange-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-primary/20">
+                <button className="w-full py-5 bg-brand-primary hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-primary/40 text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 duration-200">
                   FINALIZAR PEDIDO
                 </button>
               </div>
@@ -866,6 +935,9 @@ export default function App() {
         onRemove={removeFromCart}
         orderConfig={orderConfig}
         onUpdateOrderConfig={setOrderConfig}
+        menuItems={menuItems}
+        promotions={promotions}
+        onAddItem={startCustomizing}
       />
 
       {/* Mobile Floating Action Button for Cart */}

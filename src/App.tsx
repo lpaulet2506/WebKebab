@@ -588,41 +588,60 @@ const Cart = ({
                           <h3 className="text-xs font-black uppercase tracking-widest text-white/50">Añadir a tu pedido</h3>
                         </div>
                         <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth py-1">
-                          {['all', 'kebabs', 'burgers', 'combos', 'bebidas'].map(cat => (
+                          {[
+                            { id: 'all', label: 'Todos' },
+                            { id: 'kebabs', label: 'Kebabs' },
+                            { id: 'hamburguesas', label: 'Burgers' },
+                            { id: 'combos', label: 'Promos' },
+                            { id: 'drinks', label: 'Bebidas' },
+                            { id: 'raciones', label: 'Raciones' }
+                          ].map(cat => (
                             <button
-                              key={cat}
-                              onClick={() => setActiveCategory(cat)}
-                              className={`text-[8px] font-black uppercase tracking-widest px-4 py-2 rounded-full transition-all shrink-0 ${activeCategory === cat ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
+                              key={cat.id}
+                              onClick={() => setActiveCategory(cat.id)}
+                              className={`text-[8px] font-black uppercase tracking-widest px-4 py-2 rounded-full transition-all shrink-0 ${activeCategory === cat.id ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
                             >
-                              {cat === 'all' ? 'Todos' : cat}
+                              {cat.label}
                             </button>
                           ))}
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3">
-                        {(activeCategory === 'all' ? menuItems : menuItems.filter(i => i.category === activeCategory)).map(item => (
-                          <motion.div
-                            layout
-                            key={item.id}
-                            className="bg-white/5 border border-white/5 rounded-3xl p-3 flex gap-4 hover:border-brand-primary/30 transition-all cursor-pointer group/item"
-                            onClick={() => onAddItem(item)}
-                          >
-                            <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-white/5">
-                              <img src={item.image} className="w-full h-full object-cover grayscale-[0.2] group-hover/item:grayscale-0 transition-all duration-500" alt={item.name} />
-                            </div>
-                            <div className="flex-1 flex flex-col justify-center min-w-0">
-                              <h4 className="font-bold text-[10px] group-hover:text-brand-primary transition-colors truncate uppercase tracking-tight">{item.name}</h4>
-                              <p className="text-[9px] text-white/30 line-clamp-1 leading-tight mb-2 font-light">{item.ingredients || item.description}</p>
-                              <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-mono font-bold text-brand-primary">{item.price.toFixed(2)}€</span>
-                                <div className="w-6 h-6 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary group-hover/item:bg-brand-primary group-hover/item:text-white transition-all shadow-lg shadow-brand-primary/10">
-                                  <Plus size={12} />
+                        {(activeCategory === 'all'
+                          ? [...menuItems, ...promotions]
+                          : (activeCategory === 'combos'
+                            ? promotions
+                            : menuItems.filter(i => i.category === activeCategory)
+                          )
+                        ).map(item => {
+                          const itemName = 'title' in item ? item.title : item.name;
+                          const itemDesc = 'description' in item ? item.description : (item as any).ingredients;
+
+                          return (
+                            <motion.div
+                              layout
+                              key={item.id}
+                              className="bg-white/5 border border-white/5 rounded-3xl p-4 flex gap-4 hover:border-brand-primary/30 transition-all cursor-pointer group/item"
+                              onClick={() => onAddItem(item)}
+                            >
+                              <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-white/5">
+                                <img src={item.image} className="w-full h-full object-cover grayscale-[0.2] group-hover/item:grayscale-0 transition-all duration-500" alt={itemName} />
+                              </div>
+                              <div className="flex-1 flex flex-col justify-center min-w-0">
+                                <h4 className="font-bold text-xs group-hover:text-brand-primary transition-colors truncate uppercase tracking-tight">{itemName}</h4>
+                                <p className="text-[10px] text-white/30 line-clamp-1 leading-tight mb-3 font-light">{itemDesc}</p>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs font-mono font-bold text-brand-primary">{item.price.toFixed(2)}€</span>
+                                  <div className="px-4 py-2 bg-brand-primary/10 rounded-xl flex items-center gap-2 text-brand-primary group-hover/item:bg-brand-primary group-hover/item:text-white transition-all shadow-lg shadow-brand-primary/10 border border-brand-primary/20">
+                                    <span className="text-[10px] font-bold">AÑADIR</span>
+                                    <Plus size={12} />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
+                            </motion.div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -847,6 +866,20 @@ export default function App() {
     };
     loadMenu();
   }, []);
+
+  useEffect(() => {
+    if (isCartOpen || customizingItem) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = 'unset';
+      document.body.style.touchAction = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.body.style.touchAction = 'auto';
+    };
+  }, [isCartOpen, customizingItem]);
 
   const startCustomizing = (item: MenuItem | Promotion) => {
     if (item.customizations && item.customizations.length > 0) {

@@ -462,7 +462,7 @@ const Cart = ({
                     <div className="grid grid-cols-3 gap-4">
                       {externalPlatforms.map((plat) => (
                         <a key={plat.name} href={plat.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
-                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/30 group-hover:bg-brand-primary group-hover:text-white transition-all">
+                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-all">
                             {plat.icon}
                           </div>
                           <span className="text-[8px] font-bold text-white/20 uppercase group-hover:text-white/40">{plat.name}</span>

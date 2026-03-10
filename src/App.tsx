@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram, Store, ShoppingBag, Bike, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2, ChevronRight, ChevronLeft, Star, Clock, MapPin, Phone, Facebook, Instagram, Store, ShoppingBag, Bike, ArrowLeft, ChevronDown } from 'lucide-react';
 import { MENU_DATA, MenuItem, PROMOTIONS, Promotion, CustomizationOption, CustomizationGroup } from './data/menu';
 import { fetchMenuFromSheet } from './services/menuService';
 
@@ -352,6 +352,7 @@ const Cart = ({
   );
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -544,14 +545,35 @@ const Cart = ({
                                   </div>
 
                                   {Object.keys(selections).length > 0 && (
-                                    <div className="text-[9px] text-white/30 mb-2 space-y-0.5 font-medium italic">
-                                      {Object.entries(selections).map(([groupId, selectedOptions]) => {
-                                        if (selectedOptions.length === 0) return null;
-                                        const group = item.customizations?.find(g => g.id === groupId);
-                                        if (!group) return null;
-                                        const names = selectedOptions.map(optId => group.options.find(o => o.id === optId)?.name || optId);
-                                        return <div key={groupId}>• {names.join(', ')}</div>;
-                                      })}
+                                    <div className="text-[10px] mb-3">
+                                      <button 
+                                        onClick={() => setExpandedDetails(prev => ({ ...prev, [id]: !prev[id] }))} 
+                                        className="flex items-center gap-1 text-brand-primary hover:text-orange-400 transition-colors uppercase font-bold tracking-wider mb-2"
+                                      >
+                                        <ChevronDown size={14} className={`transition-transform duration-300 ${expandedDetails[id] ? 'rotate-180' : ''}`} />
+                                        Detalle
+                                      </button>
+                                      
+                                      <AnimatePresence>
+                                        {expandedDetails[id] && (
+                                          <motion.div 
+                                            initial={{ height: 0, opacity: 0 }} 
+                                            animate={{ height: 'auto', opacity: 1 }} 
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="overflow-hidden"
+                                          >
+                                            <div className="text-white/40 space-y-1 font-medium pl-2 border-l-2 border-brand-primary/30 pb-2 italic text-[9px] uppercase">
+                                              {Object.entries(selections).map(([groupId, selectedOptions]) => {
+                                                if (selectedOptions.length === 0) return null;
+                                                const group = item.customizations?.find(g => g.id === groupId);
+                                                if (!group) return null;
+                                                const names = selectedOptions.map(optId => group.options.find(o => o.id === optId)?.name || optId);
+                                                return <div key={groupId}>• {names.join(', ')}</div>;
+                                              })}
+                                            </div>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                   )}
 
@@ -665,8 +687,9 @@ const Cart = ({
                   <span className="text-xs font-black uppercase text-white/30 tracking-[0.2em]">Total Pedido</span>
                   <span className="text-3xl font-display font-bold text-brand-primary tracking-tighter leading-none">{total.toFixed(2)}€</span>
                 </div>
-                <button className="w-full py-5 bg-brand-primary hover:bg-orange-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-primary/40 text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 duration-200">
-                  FINALIZAR PEDIDO
+                <button className="w-full h-14 bg-brand-primary hover:bg-orange-600 text-white font-black rounded-full transition-all shadow-xl shadow-brand-primary/40 flex items-center justify-between px-6 hover:scale-[1.02] active:scale-95 duration-200">
+                  <span className="uppercase tracking-widest text-sm">Continuar al pago</span>
+                  <span className="text-lg font-mono">{total.toFixed(2)}€</span>
                 </button>
               </div>
             )}
@@ -762,14 +785,18 @@ const ItemCustomizationModal = ({
   item,
   isOpen,
   onClose,
-  onAdd
+  onAdd,
+  menuItems
 }: {
   item: MenuItem | Promotion | null,
   isOpen: boolean,
   onClose: () => void,
-  onAdd: (item: MenuItem | Promotion, selections: Record<string, string[]>) => void
+  onAdd: (item: MenuItem | Promotion, selections: Record<string, string[]>, extras?: Record<string, number>) => void,
+  menuItems: MenuItem[]
 }) => {
   const [selections, setSelections] = useState<Record<string, string[]>>({});
+  const [step, setStep] = useState(1);
+  const [extras, setExtras] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (item && item.customizations) {
@@ -782,8 +809,12 @@ const ItemCustomizationModal = ({
         }
       });
       setSelections(initial);
+      setStep(1);
+      setExtras({});
     } else {
       setSelections({});
+      setStep(1);
+      setExtras({});
     }
   }, [item]);
 
@@ -812,33 +843,79 @@ const ItemCustomizationModal = ({
               <h3 className="text-2xl font-display font-bold">{itemName}</h3>
               <button onClick={onClose}><X size={24} /></button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1 space-y-8">
-              {item.customizations?.map(group => (
-                <div key={group.id}>
-                  <h4 className="font-bold text-lg mb-4 text-brand-primary">{group.name} <span className="text-xs text-white/50">{group.type === 'multiple' ? '(Opcional)' : '(Obligatorio)'}</span></h4>
-                  <div className="space-y-3">
-                    {group.options.map(opt => {
-                      const isSelected = (selections[group.id] || []).includes(opt.id);
-                      return (
-                        <label key={opt.id} className={`flex items-center gap-4 p-4 rounded-xl border transition-colors cursor-pointer ${isSelected ? 'border-brand-primary bg-brand-primary/10' : 'border-white/5 hover:border-brand-primary/50 bg-white/5'}`}>
-                          <input
-                            type={group.type === 'single' ? 'radio' : 'checkbox'}
-                            name={group.id}
-                            checked={isSelected}
-                            onChange={() => handleToggle(group.id, opt.id, group.type)}
-                            className="w-5 h-5 accent-brand-primary"
-                          />
-                          <span>{opt.name}</span>
-                        </label>
-                      )
+            <div className="p-6 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+              {step === 1 ? (
+                item.customizations?.map(group => (
+                  <div key={group.id}>
+                    <h4 className="font-bold text-lg mb-4 text-brand-primary">{group.name} <span className="text-xs text-white/50">{group.type === 'multiple' ? '(Opcional)' : '(Obligatorio)'}</span></h4>
+                    <div className="space-y-3">
+                      {group.options.map(opt => {
+                        const isSelected = (selections[group.id] || []).includes(opt.id);
+                        return (
+                          <label key={opt.id} className={`flex items-center gap-4 p-4 rounded-xl border transition-colors cursor-pointer ${isSelected ? 'border-brand-primary bg-brand-primary/10 pl-6' : 'border-white/5 hover:border-brand-primary/50 bg-white/5'}`}>
+                            <input
+                              type={group.type === 'single' ? 'radio' : 'checkbox'}
+                              name={group.id}
+                              checked={isSelected}
+                              onChange={() => handleToggle(group.id, opt.id, group.type)}
+                              className="w-5 h-5 accent-brand-primary"
+                            />
+                            <div className="flex-1 flex justify-between items-center text-sm">
+                              <span className="font-semibold">{opt.name}</span>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary"><Star size={16} /></div>
+                    <h4 className="font-display font-bold text-2xl uppercase tracking-tighter">No te quedes con sed</h4>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {menuItems.filter(i => i.category === 'drinks').slice(0, 5).map(drink => {
+                       const qty = extras[drink.id] || 0;
+                       return (
+                         <div key={drink.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-brand-primary/30 transition-all">
+                            <img src={drink.image} className="w-16 h-16 rounded-xl object-cover shrink-0" alt={drink.name} />
+                            <div className="flex-1 min-w-0">
+                               <h5 className="font-bold text-sm uppercase truncate mb-1">{drink.name}</h5>
+                               <span className="text-brand-primary font-mono font-bold text-xs">{drink.price.toFixed(2)}€</span>
+                            </div>
+                            <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
+                                <button onClick={() => setExtras(prev => ({...prev, [drink.id]: Math.max(0, qty - 1)}))} className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/50 transition-colors">
+                                   <Minus size={14} />
+                                </button>
+                                <span className="font-mono text-sm w-4 text-center font-bold">{qty}</span>
+                                <button onClick={() => setExtras(prev => ({...prev, [drink.id]: qty + 1}))} className="w-8 h-8 rounded-lg hover:bg-brand-primary/20 flex items-center justify-center text-brand-primary transition-colors">
+                                   <Plus size={14} />
+                                </button>
+                            </div>
+                         </div>
+                       )
                     })}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
             <div className="p-6 border-t border-white/10 bg-black/50 rounded-b-3xl">
-              <button onClick={() => onAdd(item, selections)} className="w-full py-4 bg-brand-primary text-white font-bold rounded-2xl hover:bg-orange-600 transition-colors">
-                AÑADIR - {item.price.toFixed(2)}€
+              <button 
+                onClick={() => {
+                  if (step === 1) setStep(2);
+                  else onAdd(item, selections, extras);
+                }} 
+                className="w-full h-14 bg-brand-primary text-white font-black rounded-full hover:bg-orange-600 transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-between px-6 hover:scale-[1.02] active:scale-95 duration-200"
+              >
+                <span className="uppercase tracking-widest text-sm">{step === 1 ? 'Continuar' : 'Añadir al pedido'}</span>
+                <span className="text-lg font-mono">
+                  {(item.price + Object.entries(extras).reduce((acc, [id, qty]) => {
+                    const extraItem = menuItems.find(m => m.id === id);
+                    return acc + (extraItem ? extraItem.price * qty : 0);
+                  }, 0)).toFixed(2)}€
+                </span>
               </button>
             </div>
           </motion.div>
@@ -889,16 +966,38 @@ export default function App() {
     }
   };
 
-  const handleAddConfiguredItem = (item: MenuItem | Promotion, selections: Record<string, string[]>) => {
+  const handleAddConfiguredItem = (item: MenuItem | Promotion, selections: Record<string, string[]>, extras?: Record<string, number>) => {
     const selectionsKey = JSON.stringify(selections);
     const cartId = `${item.id}-${selectionsKey}`;
 
     setCartItems(prev => {
-      const existing = prev.find(i => i.id === cartId);
+      let newCart = [...prev];
+      const existing = newCart.find(i => i.id === cartId);
       if (existing) {
-        return prev.map(i => i.id === cartId ? { ...i, quantity: i.quantity + 1 } : i);
+        newCart = newCart.map(i => i.id === cartId ? { ...i, quantity: i.quantity + 1 } : i);
+      } else {
+        newCart.push({ id: cartId, baseId: item.id, item, quantity: 1, selections });
       }
-      return [...prev, { id: cartId, baseId: item.id, item, quantity: 1, selections }];
+
+      // Add extra items (cross-sell drinks/sides)
+      if (extras) {
+        Object.entries(extras).forEach(([extraId, qty]) => {
+          if (qty > 0) {
+            const extraItem = menuItems.find(m => m.id === extraId);
+            if (extraItem) {
+               const extraCartId = `${extraItem.id}-{}`;
+               const existingExtra = newCart.find(i => i.id === extraCartId);
+               if (existingExtra) {
+                 newCart = newCart.map(i => i.id === extraCartId ? { ...i, quantity: i.quantity + qty } : i);
+               } else {
+                 newCart.push({ id: extraCartId, baseId: extraItem.id, item: extraItem, quantity: qty, selections: {} });
+               }
+            }
+          }
+        });
+      }
+
+      return newCart;
     });
     setCustomizingItem(null);
     setIsCartOpen(true);
@@ -993,6 +1092,7 @@ export default function App() {
         isOpen={!!customizingItem}
         onClose={() => setCustomizingItem(null)}
         onAdd={handleAddConfiguredItem}
+        menuItems={menuItems}
       />
     </div>
   );

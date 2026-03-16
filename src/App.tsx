@@ -29,7 +29,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/80 backdrop-blur-md py-3' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-display font-bold tracking-tighter text-brand-primary">ABESH STAR KEBAB</span>
+          <span className="text-2xl font-display font-bold tracking-tighter text-brand-primary">STAR KEBAB</span>
           <span className="text-xs font-mono opacity-50 hidden sm:block">MODERN KEBAB</span>
         </div>
 
@@ -92,7 +92,7 @@ const Hero = ({ onStartOrder }: { onStartOrder: () => void }) => {
           </span>
           <h1 className="text-6xl md:text-8xl font-display font-bold leading-[0.9] tracking-tighter mb-8">
             KEBAB <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-orange-400">ABESH STAR</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-orange-400">KEBAB STAR</span>
           </h1>
           <p className="text-lg md:text-xl text-white/60 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
             Ingredientes frescos, carne de primera calidad y recetas tradicionales con un toque moderno. Pide ahora y recíbelo en 30 minutos.
@@ -546,19 +546,19 @@ const Cart = ({
 
                                   {Object.keys(selections).length > 0 && (
                                     <div className="text-[10px] mb-3">
-                                      <button 
-                                        onClick={() => setExpandedDetails(prev => ({ ...prev, [id]: !prev[id] }))} 
+                                      <button
+                                        onClick={() => setExpandedDetails(prev => ({ ...prev, [id]: !prev[id] }))}
                                         className="flex items-center gap-1 text-brand-primary hover:text-orange-400 transition-colors uppercase font-bold tracking-wider mb-2"
                                       >
                                         <ChevronDown size={14} className={`transition-transform duration-300 ${expandedDetails[id] ? 'rotate-180' : ''}`} />
                                         Detalle
                                       </button>
-                                      
+
                                       <AnimatePresence>
                                         {expandedDetails[id] && (
-                                          <motion.div 
-                                            initial={{ height: 0, opacity: 0 }} 
-                                            animate={{ height: 'auto', opacity: 1 }} 
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden"
                                           >
@@ -735,7 +735,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center gap-2 mb-6">
-            <span className="text-3xl font-display font-bold tracking-tighter text-brand-primary">ABESH STAR KEBAB</span>
+            <span className="text-3xl font-display font-bold tracking-tighter text-brand-primary">KEBAB STAR</span>
           </div>
           <p className="text-white/40 max-w-sm mb-8">
             Llevamos el auténtico sabor de Turquía a tu mesa con un toque de modernidad y frescura inigualable.
@@ -877,36 +877,36 @@ const ItemCustomizationModal = ({
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     {menuItems.filter(i => i.category === 'drinks').slice(0, 5).map(drink => {
-                       const qty = extras[drink.id] || 0;
-                       return (
-                         <div key={drink.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-brand-primary/30 transition-all">
-                            <img src={drink.image} className="w-16 h-16 rounded-xl object-cover shrink-0" alt={drink.name} />
-                            <div className="flex-1 min-w-0">
-                               <h5 className="font-bold text-sm uppercase truncate mb-1">{drink.name}</h5>
-                               <span className="text-brand-primary font-mono font-bold text-xs">{drink.price.toFixed(2)}€</span>
-                            </div>
-                            <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
-                                <button onClick={() => setExtras(prev => ({...prev, [drink.id]: Math.max(0, qty - 1)}))} className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/50 transition-colors">
-                                   <Minus size={14} />
-                                </button>
-                                <span className="font-mono text-sm w-4 text-center font-bold">{qty}</span>
-                                <button onClick={() => setExtras(prev => ({...prev, [drink.id]: qty + 1}))} className="w-8 h-8 rounded-lg hover:bg-brand-primary/20 flex items-center justify-center text-brand-primary transition-colors">
-                                   <Plus size={14} />
-                                </button>
-                            </div>
-                         </div>
-                       )
+                      const qty = extras[drink.id] || 0;
+                      return (
+                        <div key={drink.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-brand-primary/30 transition-all">
+                          <img src={drink.image} className="w-16 h-16 rounded-xl object-cover shrink-0" alt={drink.name} />
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-bold text-sm uppercase truncate mb-1">{drink.name}</h5>
+                            <span className="text-brand-primary font-mono font-bold text-xs">{drink.price.toFixed(2)}€</span>
+                          </div>
+                          <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
+                            <button onClick={() => setExtras(prev => ({ ...prev, [drink.id]: Math.max(0, qty - 1) }))} className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/50 transition-colors">
+                              <Minus size={14} />
+                            </button>
+                            <span className="font-mono text-sm w-4 text-center font-bold">{qty}</span>
+                            <button onClick={() => setExtras(prev => ({ ...prev, [drink.id]: qty + 1 }))} className="w-8 h-8 rounded-lg hover:bg-brand-primary/20 flex items-center justify-center text-brand-primary transition-colors">
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      )
                     })}
                   </div>
                 </div>
               )}
             </div>
             <div className="p-6 border-t border-white/10 bg-black/50 rounded-b-3xl">
-              <button 
+              <button
                 onClick={() => {
                   if (step === 1) setStep(2);
                   else onAdd(item, selections, extras);
-                }} 
+                }}
                 className="w-full h-14 bg-brand-primary text-white font-black rounded-full hover:bg-orange-600 transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-between px-6 hover:scale-[1.02] active:scale-95 duration-200"
               >
                 <span className="uppercase tracking-widest text-sm">{step === 1 ? 'Continuar' : 'Añadir al pedido'}</span>
@@ -985,13 +985,13 @@ export default function App() {
           if (qty > 0) {
             const extraItem = menuItems.find(m => m.id === extraId);
             if (extraItem) {
-               const extraCartId = `${extraItem.id}-{}`;
-               const existingExtra = newCart.find(i => i.id === extraCartId);
-               if (existingExtra) {
-                 newCart = newCart.map(i => i.id === extraCartId ? { ...i, quantity: i.quantity + qty } : i);
-               } else {
-                 newCart.push({ id: extraCartId, baseId: extraItem.id, item: extraItem, quantity: qty, selections: {} });
-               }
+              const extraCartId = `${extraItem.id}-{}`;
+              const existingExtra = newCart.find(i => i.id === extraCartId);
+              if (existingExtra) {
+                newCart = newCart.map(i => i.id === extraCartId ? { ...i, quantity: i.quantity + qty } : i);
+              } else {
+                newCart.push({ id: extraCartId, baseId: extraItem.id, item: extraItem, quantity: qty, selections: {} });
+              }
             }
           }
         });
